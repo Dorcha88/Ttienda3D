@@ -1,15 +1,15 @@
-// @ts-check
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
+import tailwind from "@astrojs/tailwind";
+import vercel from "@astrojs/vercel/serverless";
 
-import tailwindcss from '@tailwindcss/vite';
-
-import vercel from '@astrojs/vercel';
-
-// https://astro.build/config
 export default defineConfig({
-  vite: {
-    plugins: [tailwindcss()]
-  },
-
-  adapter: vercel()
+  // 1. Activamos Tailwind
+  integrations: [tailwind()],
+  
+  // 2. IMPORTANTE: Activamos el modo servidor para que funcionen las APIs y el Login
+  output: 'server',
+  
+  // 3. Conectamos con Vercel
+  adapter: vercel(),
 });
