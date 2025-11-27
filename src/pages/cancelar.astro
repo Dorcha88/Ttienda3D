@@ -1,0 +1,6 @@
+---
+// src/pages/cancelar.astro
+// Esta página actúa como "amortiguador". Recibe la petición de VentiPay
+// (sea GET o POST) y redirige limpiamente al usuario al carrito.
+return Astro.redirect('/carrito');
+---
