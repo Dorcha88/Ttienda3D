@@ -19,8 +19,8 @@ export const POST: APIRoute = async ({ request }) => {
       currency: "CLP",
       amount: totalAmount,
       description: "Compra en PrintLabE3D",
-      cancel_url: "https://printlabe3d.netlify.app/", 
-      success_url: "https://printlabe3d.netlify.app/",
+      cancel_url: "https://printlabe3d.netlify.app/api/ventipay-success", 
+      success_url: "https://printlabe3d.netlify.app/api/ventipay-success",
       items: items.map((i: any) => ({
           name: i.name,
           unit_price: i.price,
