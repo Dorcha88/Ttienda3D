@@ -18,9 +18,9 @@ export const POST: APIRoute = async ({ request }) => {
     const payload = {
       currency: "CLP",
       amount: totalAmount,
-      description: "Compra en Forge3D",
-      cancel_url: "https://ttienda3-d.vercel.app/api/return-ventipay", 
-      success_url: "https://ttienda3-d.vercel.app/api/return-ventipay",
+      description: "Compra en PrintLabE3D",
+      cancel_url: "https://printlabe3d.netlify.app/", 
+      success_url: "https://printlabe3d.netlify.app/",
       items: items.map((i: any) => ({
           name: i.name,
           unit_price: i.price,
