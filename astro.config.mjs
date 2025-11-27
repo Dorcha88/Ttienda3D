@@ -12,4 +12,9 @@ export default defineConfig({
   
   // 3. Conectamos con netlify
   adapter: netlify(),
+
+  security: {
+    checkOrigin: false
+  }
+  
 });
