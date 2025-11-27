@@ -1,0 +1,147 @@
+---
+// src/pages/login.astro
+import "../styles/global.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Acceso - Forge3D</title>
+  </head>
+  <body class="bg-gray-950 flex items-center justify-center min-h-screen relative overflow-hidden">
+    
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 blur-[100px] rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+    <div class="relative bg-gray-900/60 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/10 max-w-sm w-full z-10">
+      
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-600 text-transparent bg-clip-text mb-2">
+            Forge3D
+        </h1>
+        <p class="text-gray-400 text-sm">Ingresa para gestionar tu cuenta</p>
+      </div>
+
+      <form id="auth-form" class="flex flex-col gap-5">
+        
+        <div>
+          <label class="block text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Correo Electrónico</label>
+          <input 
+            type="email" 
+            name="email" 
+            id="email" 
+            required
+            class="w-full bg-gray-950/50 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-600"
+            placeholder="usuario@ejemplo.com"
+          />
+        </div>
+
+        <div>
+          <label class="block text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Contraseña</label>
+          <input 
+            type="password" 
+            name="password" 
+            id="password" 
+            required
+            class="w-full bg-gray-950/50 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-600"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <p id="message" class="text-sm text-center hidden min-h-[20px] font-medium"></p>
+
+        <button 
+          id="btn-login"
+          type="submit" 
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-900/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Iniciar Sesión
+        </button>
+
+        <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-gray-700"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs">O</span>
+            <div class="flex-grow border-t border-gray-700"></div>
+        </div>
+
+        <button 
+          id="btn-register"
+          type="button" 
+          class="w-full py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium border border-white/5 transition-all"
+        >
+          Crear cuenta nueva
+        </button>
+      </form>
+    </div>
+
+    <script>
+      import { supabase } from "../lib/supabase";
+
+      const form = document.getElementById("auth-form") as HTMLFormElement;
+      const emailInput = document.getElementById("email") as HTMLInputElement;
+      const passwordInput = document.getElementById("password") as HTMLInputElement;
+      const btnLogin = document.getElementById("btn-login") as HTMLButtonElement;
+      const btnRegister = document.getElementById("btn-register") as HTMLButtonElement;
+      const messageMsg = document.getElementById("message") as HTMLParagraphElement;
+
+      // Cookies locales (sin secure para localhost)
+      const setAuthCookies = (access_token: string, refresh_token: string) => {
+        document.cookie = `sb-access-token=${access_token}; path=/; max-age=604800`;
+        document.cookie = `sb-refresh-token=${refresh_token}; path=/; max-age=604800`;
+      };
+
+      const showMessage = (text: string, isError = false) => {
+        messageMsg.innerText = text;
+        messageMsg.classList.remove("hidden", "text-red-400", "text-green-400");
+        messageMsg.classList.add(isError ? "text-red-400" : "text-green-400");
+        messageMsg.classList.remove("hidden");
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        showMessage("Conectando...");
+        btnLogin.disabled = true;
+        btnLogin.classList.add('opacity-70', 'cursor-not-allowed');
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: emailInput.value,
+          password: passwordInput.value,
+        });
+
+        if (error) {
+          showMessage(error.message, true);
+          btnLogin.disabled = false;
+          btnLogin.classList.remove('opacity-70', 'cursor-not-allowed');
+        } else {
+          setAuthCookies(data.session.access_token, data.session.refresh_token);
+          const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.session.user.id).single();
+          
+          if (profile?.role === 'admin') window.location.href = "/admin";
+          else window.location.href = "/";
+        }
+      });
+
+      btnRegister.addEventListener("click", async () => {
+        showMessage("Creando cuenta...");
+        btnRegister.disabled = true;
+
+        const { data, error } = await supabase.auth.signUp({
+          email: emailInput.value,
+          password: passwordInput.value,
+        });
+
+        if (error) {
+          showMessage(error.message, true);
+          btnRegister.disabled = false;
+        } else {
+          showMessage("Cuenta creada. Iniciando...", false);
+          setTimeout(() => {
+             const loginEvent = new Event('submit');
+             form.dispatchEvent(loginEvent);
+          }, 1000);
+        }
+      });
+    </script>
+  </body>
+</html>
