@@ -19,8 +19,8 @@ export const POST: APIRoute = async ({ request }) => {
       currency: "CLP",
       amount: totalAmount,
       description: "Compra en Forge3D",
-      cancel_url: "https://ttienda3-d.vercel.app/cancelar", 
-      success_url: "https://ttienda3-d.vercel.app/carrito",
+      cancel_url: "https://ttienda3-d.vercel.app/api/return-ventipay", 
+      success_url: "https://ttienda3-d.vercel.app/api/return-ventipay",
       items: items.map((i: any) => ({
           name: i.name,
           unit_price: i.price,
