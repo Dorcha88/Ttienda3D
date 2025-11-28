@@ -7,72 +7,77 @@ import "../styles/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>Acceso - Forge3D</title>
+    <title>Acceso - Prinlab3D</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
   </head>
-  <body class="bg-gray-950 flex items-center justify-center min-h-screen relative overflow-hidden">
+  <body class="bg-gray-50 flex items-center justify-center h-screen font-sans">
     
-    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/20 blur-[100px] rounded-full pointer-events-none"></div>
-    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-50 to-blue-50 -z-10"></div>
 
-    <div class="relative bg-gray-900/60 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/10 max-w-sm w-full z-10">
-      
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm border border-gray-100 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-blue-500"></div>
+
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-black bg-gradient-to-r from-cyan-400 to-blue-600 text-transparent bg-clip-text mb-2">
-            Forge3D
-        </h1>
-        <p class="text-gray-400 text-sm">Ingresa para gestionar tu cuenta</p>
+          <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-blue-600 mb-2">
+            Bienvenido
+          </h1>
+          <p class="text-gray-400 text-sm">Ingresa a tu cuenta Prinlab3D</p>
       </div>
 
       <form id="auth-form" class="flex flex-col gap-5">
         
         <div>
-          <label class="block text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Correo Electrónico</label>
+          <label class="block text-gray-600 text-xs font-bold uppercase mb-2 ml-1">Correo Electrónico</label>
           <input 
             type="email" 
             name="email" 
             id="email" 
             required
-            class="w-full bg-gray-950/50 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-600"
+            class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
             placeholder="usuario@ejemplo.com"
           />
         </div>
 
         <div>
-          <label class="block text-cyan-400 text-xs font-bold uppercase tracking-wider mb-2">Contraseña</label>
+          <label class="block text-gray-600 text-xs font-bold uppercase mb-2 ml-1">Contraseña</label>
           <input 
             type="password" 
             name="password" 
             id="password" 
             required
-            class="w-full bg-gray-950/50 border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder-gray-600"
-            placeholder="••••••••"
+            class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
+            placeholder="********"
           />
         </div>
 
-        <p id="message" class="text-sm text-center hidden min-h-[20px] font-medium"></p>
+        <p id="message" class="text-sm text-center hidden min-h-[20px] font-semibold text-pink-500"></p>
 
         <button 
           id="btn-login"
           type="submit" 
-          class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-900/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+          class="w-full bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white font-bold py-3 rounded-xl transition shadow-lg transform active:scale-95"
         >
           Iniciar Sesión
         </button>
 
-        <div class="relative flex py-2 items-center">
-            <div class="flex-grow border-t border-gray-700"></div>
-            <span class="flex-shrink-0 mx-4 text-gray-500 text-xs">O</span>
-            <div class="flex-grow border-t border-gray-700"></div>
+        <div class="flex items-center my-2">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="mx-4 text-gray-400 text-xs">O</span>
+            <div class="flex-grow border-t border-gray-200"></div>
         </div>
 
         <button 
           id="btn-register"
           type="button" 
-          class="w-full py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium border border-white/5 transition-all"
+          class="w-full bg-white border-2 border-gray-200 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-50 hover:text-gray-700 transition"
         >
           Crear cuenta nueva
         </button>
       </form>
+      
+      <div class="mt-6 text-center">
+        <a href="/" class="text-xs text-gray-400 hover:text-pink-500 transition">← Volver a la tienda</a>
+      </div>
     </div>
 
     <script>
@@ -85,16 +90,16 @@ import "../styles/global.css";
       const btnRegister = document.getElementById("btn-register") as HTMLButtonElement;
       const messageMsg = document.getElementById("message") as HTMLParagraphElement;
 
-      // Cookies locales (sin secure para localhost)
       const setAuthCookies = (access_token: string, refresh_token: string) => {
-        document.cookie = `sb-access-token=${access_token}; path=/; max-age=604800`;
-        document.cookie = `sb-refresh-token=${refresh_token}; path=/; max-age=604800`;
+        const maxAge = 60 * 60 * 24 * 7; 
+        document.cookie = `sb-access-token=${access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+        document.cookie = `sb-refresh-token=${refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
       };
 
       const showMessage = (text: string, isError = false) => {
         messageMsg.innerText = text;
-        messageMsg.classList.remove("hidden", "text-red-400", "text-green-400");
-        messageMsg.classList.add(isError ? "text-red-400" : "text-green-400");
+        messageMsg.classList.remove("hidden", "text-red-500", "text-green-500");
+        messageMsg.classList.add(isError ? "text-red-500" : "text-green-500");
         messageMsg.classList.remove("hidden");
       };
 
@@ -102,7 +107,6 @@ import "../styles/global.css";
         e.preventDefault();
         showMessage("Conectando...");
         btnLogin.disabled = true;
-        btnLogin.classList.add('opacity-70', 'cursor-not-allowed');
 
         const { data, error } = await supabase.auth.signInWithPassword({
           email: emailInput.value,
@@ -112,18 +116,24 @@ import "../styles/global.css";
         if (error) {
           showMessage(error.message, true);
           btnLogin.disabled = false;
-          btnLogin.classList.remove('opacity-70', 'cursor-not-allowed');
         } else {
           setAuthCookies(data.session.access_token, data.session.refresh_token);
-          const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.session.user.id).single();
-          
-          if (profile?.role === 'admin') window.location.href = "/admin";
-          else window.location.href = "/";
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.session.user.id)
+            .single();
+
+          if (profile?.role === 'admin') {
+               window.location.href = "/admin";
+           } else {
+               window.location.href = "/";
+           }
         }
       });
 
       btnRegister.addEventListener("click", async () => {
-        showMessage("Creando cuenta...");
+        showMessage("Creando usuario...");
         btnRegister.disabled = true;
 
         const { data, error } = await supabase.auth.signUp({
@@ -135,7 +145,7 @@ import "../styles/global.css";
           showMessage(error.message, true);
           btnRegister.disabled = false;
         } else {
-          showMessage("Cuenta creada. Iniciando...", false);
+          showMessage("¡Cuenta creada! Entrando...", false);
           setTimeout(() => {
              const loginEvent = new Event('submit');
              form.dispatchEvent(loginEvent);
