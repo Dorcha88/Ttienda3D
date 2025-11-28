@@ -1,321 +1,108 @@
 ---
-// src/pages/index.astro
 export const prerender = false;
-import "../styles/global.css";
+import Layout from '../layouts/Layout.astro';
 import { supabase } from "../lib/supabase";
 
-// 1. LÓGICA DE ROLES (INTACTA)
+// 1. TRAER PRODUCTOS DE SUPABASE
+let productsDB = [];
+try {
+  // Pedimos los productos a la base de datos
+  const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+  if (data) productsDB = data;
+} catch (e) {
+  console.error("Error DB", e);
+}
+
+// Obtenemos rol para saber si mostrar botón de admin (opcional, si lo usas en el layout ya no es crítico aquí, pero por si acaso)
 const { cookies } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
-const refreshToken = cookies.get("sb-refresh-token")?.value;
-let isAdmin = false;
-let isLoggedIn = false;
-
-if (accessToken && refreshToken) {
-  const { data: { session } } = await supabase.auth.setSession({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-  });
-
-  if (session) {
-    isLoggedIn = true;
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-    
-    isAdmin = profile?.role === 'admin';
-  }
-}
-
-// 2. TRAER PRODUCTOS DE SUPABASE (INTACTO)
-let products = [];
-try {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (data) products = data;
-} catch (e) {
-  console.error("Error cargando productos", e);
-}
+let isAdmin = false; 
+// (La lógica de isAdmin fuerte está en el Layout, aquí solo es para renderizar cosas específicas si hiciera falta)
 ---
 
-<html lang="es" class="scroll-smooth">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<title>Prinlab3D - Impresiones Ñuble</title>
-        <style>
-            /* Estilos para el carrito lateral (Solo colores ajustados a claro) */
-            .cart-sidebar {
-                position: fixed; top: 0; right: 0; height: 100%; width: 400px; max-width: 100%;
-                background-color: #ffffff; /* BLANCO */
-                box-shadow: -5px 0 25px rgba(0,0,0,0.1);
-                transform: translateX(100%); transition: transform 0.3s ease-in-out;
-                z-index: 100; display: flex; flex-direction: column;
-                border-left: 1px solid #f3f4f6;
-            }
-            .cart-open { transform: translateX(0); }
-            .cart-overlay {
-                position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px);
-                z-index: 90; display: none;
-            }
-            .cart-overlay.active { display: block; }
-            
-            /* Scrollbar rosa */
-            .cart-items::-webkit-scrollbar { width: 6px; }
-            .cart-items::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 3px; }
-            .cart-items::-webkit-scrollbar-track { background: #f9fafb; }
-        </style>
-	</head>
-    <body class="bg-gray-50 text-gray-800 font-sans min-h-screen antialiased selection:bg-pink-200 selection:text-pink-900">
-		
-        <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-                <a href="/" class="text-2xl font-black tracking-tight flex items-center gap-2 group">
-                    <span class="bg-gradient-to-r from-pink-500 to-blue-600 text-transparent bg-clip-text group-hover:to-pink-400 transition-all duration-500">
-                        Prinlab3D
-                    </span>
-                </a>
-                <div class="flex gap-4 items-center">
-                    {isAdmin && (
-                        <a href="/admin" class="text-sm font-bold text-pink-600 hover:text-pink-800 transition bg-pink-50 px-3 py-1 rounded border border-pink-200">
-                            Panel Admin
-                        </a>
-                    )}
-                    {!isLoggedIn && (
-                        <a href="/login" class="text-sm font-bold text-gray-500 hover:text-blue-600 transition">
-                            Ingresar
-                        </a>
-                    )}
-                    
-                    <button onclick="toggleCart()" class="relative group p-2 rounded-full hover:bg-gray-100 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                        <span id="cart-count-badge" class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">0</span>
-                    </button>
-                </div>
-            </div>
-        </nav>
+<Layout title="Prinlab3D - Inicio">
+    
+    <header class="relative pt-10 pb-20 px-4 text-center overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50">
+        <div class="relative max-w-4xl mx-auto">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-gray-900">
+                Tus ideas, <br/>
+                <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">
+                    materializadas en 3D.
+                </span>
+            </h1>
+            <p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
+                Impresión de alta precisión para coleccionistas, prototipos y piezas únicas directo a tu hogar.
+            </p>
+        </div>
+    </header>
 
-        <header class="relative pt-32 pb-20 px-4 text-center overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50">
-            <div class="relative max-w-3xl mx-auto">
-                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight text-gray-900">
-                    Tus ideas, <br/>
-                    <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">
-                        materializadas en 3D.
-                    </span>
-                </h1>
-                <p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-                    Impresión de alta precisión para coleccionistas, prototipos y piezas únicas.
-                </p>
-            </div>
-        </header>
-
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-24 pt-10">
-            <div class="flex items-center justify-between mb-8 border-b border-gray-200 pb-4">
-                <h2 class="text-2xl font-bold text-gray-800">Catálogo Reciente</h2>
-            </div>
-
-            {products.length === 0 ? (
-                <div class="text-center py-20 border-2 border-dashed border-gray-300 rounded-xl bg-white">
-                    <p class="text-gray-500">No hay productos en la base de datos.</p>
-                    {isAdmin && <a href="/admin" class="text-pink-500 font-bold hover:underline mt-2 block">Ir a crear productos</a>}
-                </div>
-            ) : (
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {products.map((product) => (
-                        /* CAMBIO: Tarjeta Blanca con sombra suave */
-                        <article class="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-pink-200 transition-all duration-300 hover:shadow-xl flex flex-col h-full">
-                            
-                            <div class="h-64 w-full overflow-hidden bg-gray-50 relative p-4 flex items-center justify-center">
-                                {product.image_url ? (
-                                    <img 
-                                        src={product.image_url} 
-                                        alt={product.name} 
-                                        class="w-full h-full object-contain group-hover:scale-110 transition duration-500"
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    <span class="text-gray-400">Sin Imagen</span>
-                                )}
-                                <div class="absolute top-3 right-3 bg-white/90 backdrop-blur text-pink-600 font-bold px-3 py-1 rounded-full text-sm shadow-md border border-pink-100">
-                                    ${product.price.toLocaleString('es-CL')}
-                                </div>
-                            </div>
-
-                            <div class="p-6 flex flex-col flex-1">
-                                <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-1">{product.name}</h3>
-                                <p class="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">
-                                    {product.description || "Sin descripción."}
-                                </p>
-                                
-                                <button 
-                                    class="add-to-cart-btn w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform active:scale-95"
-                                    data-id={product.id}
-                                    data-name={product.name}
-                                    data-price={product.price}
-                                    data-image={product.image_url}
-                                >
-                                    <span>Añadir</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                                </button>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            )}
-		</main>
-
-        <footer class="border-t border-gray-200 py-8 text-center text-gray-500 text-sm bg-white">
-            <p>© {new Date().getFullYear()} Prinlab3D. Impreso con pasión.</p>
-        </footer>
-
-        <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
-        
-        <div id="cart-sidebar" class="cart-sidebar">
-            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <span class="text-pink-500">🛒</span> Tu Pedido
-                </h2>
-                <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500 text-2xl font-bold">✕</button>
-            </div>
-
-            <div id="cart-items-container" class="cart-items flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50">
-                </div>
-
-            <div class="p-6 border-t border-gray-100 bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-                <div class="flex justify-between items-end mb-6">
-                    <span class="text-gray-500 font-medium">Total:</span>
-                    <span id="cart-total" class="text-3xl font-bold text-blue-600">$0</span>
-                </div>
-                
-                <div class="space-y-3">
-                    <button id="btn-ventipay" class="w-full bg-gray-900 hover:bg-black text-white py-3 rounded-xl font-bold shadow-lg transition flex justify-center items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                        <span>Pagar con VentiPay</span>
-                    </button>
-
-                    <button id="btn-whatsapp" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg transition flex justify-center items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326z"/></svg>
-                        <span>Pedir por WhatsApp</span>
-                    </button>
-                </div>
-            </div>
+    <main id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-20 bg-gray-50">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-3xl font-bold text-gray-800">Catálogo Reciente</h2>
         </div>
 
-        <script>
-            import { cartItems, addProductToCart, removeProductFromCart } from "../lib/cartStore";
-
-            // Toggle Carrito
-            window.toggleCart = () => {
-                const sidebar = document.getElementById('cart-sidebar');
-                const overlay = document.getElementById('cart-overlay');
-                sidebar.classList.toggle('cart-open');
-                overlay.classList.toggle('active');
-            }
-
-            // Añadir al carrito
-            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const t = e.currentTarget;
-                    const product = {
-                        id: t.getAttribute('data-id'),
-                        name: t.getAttribute('data-name'),
-                        price: Number(t.getAttribute('data-price') || 0),
-                        image_url: t.getAttribute('data-image') || '',
-                        quantity: 1
-                    };
-                    addProductToCart(product);
-                    window.toggleCart();
-                });
-            });
-
-            // Renderizar Carrito
-            const container = document.getElementById('cart-items-container');
-            const totalEl = document.getElementById('cart-total');
-            const countEl = document.getElementById('cart-count-badge');
-
-            cartItems.subscribe(items => {
-                const products = Object.values(items);
-                const total = products.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
-                
-                countEl.innerText = products.reduce((acc, item) => acc + item.quantity, 0);
-                totalEl.innerText = `$${total.toLocaleString('es-CL')}`;
-
-                if (products.length === 0) {
-                    container.innerHTML = `
-                        <div class="h-full flex flex-col justify-center items-center text-gray-400">
-                            <span class="text-5xl mb-3">🛒</span>
-                            <p>Tu carrito está vacío</p>
-                        </div>`;
-                } else {
-                    container.innerHTML = products.map(item => `
-                        <div class="flex gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-sm items-center">
-                            <div class="w-16 h-16 bg-white rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
-                                <img src="${item.image_url || ''}" class="w-full h-full object-contain" />
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="font-bold text-sm text-gray-800 truncate">${item.name}</h4>
-                                <p class="text-pink-500 text-xs font-bold mt-1">$${Number(item.price).toLocaleString('es-CL')}</p>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded font-bold">x${item.quantity}</span>
-                                <button class="text-red-400 hover:text-red-600 text-xs font-bold remove-btn p-1" data-id="${item.id}">
-                                    Borrar
-                                </button>
+        {productsDB.length === 0 ? (
+            <div class="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-xl text-gray-400 mb-4">No hay productos disponibles.</p>
+                <p class="text-sm text-gray-300">Revisa tu conexión a Supabase o agrega productos en la tabla.</p>
+            </div>
+        ) : (
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {productsDB.map((product) => (
+                    <article class="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-pink-200 transition-all duration-300 hover:shadow-xl flex flex-col h-full">
+                        
+                        <div class="h-64 w-full overflow-hidden bg-white p-4 flex items-center justify-center relative">
+                            <img src={product.image_url} alt={product.name} class="w-full h-full object-contain group-hover:scale-110 transition duration-500" loading="lazy" />
+                            <div class="absolute top-3 right-3 bg-white/90 backdrop-blur text-pink-600 font-bold px-3 py-1 rounded-full text-sm shadow-md border border-pink-100">
+                                ${product.price.toLocaleString('es-CL')}
                             </div>
                         </div>
-                    `).join('');
-                    
-                    document.querySelectorAll('.remove-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            removeProductFromCart(e.currentTarget.getAttribute('data-id'));
-                        });
-                    });
+
+                        <div class="p-6 flex flex-col flex-1">
+                            <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-1">{product.name}</h3>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">{product.description || "Sin descripción."}</p>
+                            
+                            <button 
+                                class="add-to-cart-btn w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition shadow-md active:scale-95 flex items-center justify-center gap-2"
+                                data-id={product.id}
+                                data-name={product.name}
+                                data-price={product.price}
+                                data-image={product.image_url}
+                            >
+                                <span>Agregar</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                            </button>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        )}
+    </main>
+
+    <script>
+        import { addProductToCart } from "../lib/cartStore";
+        
+        // Buscamos todos los botones "add-to-cart-btn"
+        const botones = document.querySelectorAll('.add-to-cart-btn');
+
+        botones.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const t = e.currentTarget;
+                
+                // Agregamos al store global
+                addProductToCart({
+                    id: t.getAttribute('data-id'),
+                    name: t.getAttribute('data-name'),
+                    price: Number(t.getAttribute('data-price') || 0),
+                    image_url: t.getAttribute('data-image') || '',
+                    quantity: 1
+                });
+
+                // Abrimos el carrito visualmente (función definida en Layout)
+                if(window.toggleCart) {
+                    window.toggleCart();
                 }
             });
-
-            // Pagos
-            const btnVenti = document.getElementById('btn-ventipay');
-            if(btnVenti) {
-                btnVenti.onclick = async () => {
-                    const items = Object.values(cartItems.get());
-                    if (items.length === 0) return alert("Carrito vacío");
-                    
-                    btnVenti.innerText = "Conectando...";
-                    btnVenti.disabled = true;
-                    try {
-                        const res = await fetch('/api/checkout', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ items })
-                        });
-                        const data = await res.json();
-                        if(data.url) window.location.href = data.url;
-                        else alert("Error en pago");
-                    } catch(e) { alert("Error de conexión"); }
-                    finally { 
-                        btnVenti.innerHTML = `<span>Pagar con VentiPay</span>`; 
-                        btnVenti.disabled = false; 
-                    }
-                };
-            }
-
-            const btnWsp = document.getElementById('btn-whatsapp');
-            if(btnWsp) {
-                btnWsp.onclick = () => {
-                    const items = Object.values(cartItems.get());
-                    if (items.length === 0) return alert("Carrito vacío");
-                    let msg = "Hola Prinlab3D! 👋 Pedido:\n\n";
-                    items.forEach(p => { msg += `• ${p.quantity}x ${p.name} \n`; });
-                    const total = items.reduce((acc, item) => acc + (Number(item.price) * Number(item.quantity)), 0);
-                    msg += `\n💰 Total: $${total.toLocaleString('es-CL')}`;
-                    window.open("https://wa.me/56900000000?text=" + encodeURIComponent(msg), "_blank");
-                }
-            }
-        </script>
-	</body>
-</html>
+        });
+    </script>
+</Layout>
