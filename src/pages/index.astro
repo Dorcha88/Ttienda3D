@@ -5,19 +5,38 @@ import { supabase } from "../lib/supabase";
 
 // 1. TRAER PRODUCTOS DE SUPABASE
 let productsDB = [];
-try {
-  // Pedimos los productos a la base de datos
-  const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-  if (data) productsDB = data;
-} catch (e) {
-  console.error("Error DB", e);
+
+// Hacemos la consulta a la base de datos
+const { data, error } = await supabase
+  .from('products')
+  .select('*') // Esto trae: name, price, image_url, category, etc.
+  .order('created_at', { ascending: false });
+
+if (data) {
+  productsDB = data;
 }
 
-// Obtenemos rol para saber si mostrar botón de admin (opcional, si lo usas en el layout ya no es crítico aquí, pero por si acaso)
+if (error) {
+  console.error("Error cargando productos:", error.message);
+}
+
+// 2. LÓGICA DE ROLES (Admin)
 const { cookies } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
-let isAdmin = false; 
-// (La lógica de isAdmin fuerte está en el Layout, aquí solo es para renderizar cosas específicas si hiciera falta)
+const refreshToken = cookies.get("sb-refresh-token")?.value;
+let isAdmin = false;
+
+if (accessToken && refreshToken) {
+  const { data: { session } } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+
+  if (session) {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+    isAdmin = profile?.role === 'admin';
+  }
+}
 ---
 
 <Layout title="Prinlab3D - Inicio">
@@ -43,8 +62,7 @@ let isAdmin = false;
 
         {productsDB.length === 0 ? (
             <div class="text-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                <p class="text-xl text-gray-400 mb-4">No hay productos disponibles.</p>
-                <p class="text-sm text-gray-300">Revisa tu conexión a Supabase o agrega productos en la tabla.</p>
+                <p class="text-xl text-gray-400 mb-4">Cargando productos...</p>
             </div>
         ) : (
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -82,14 +100,10 @@ let isAdmin = false;
     <script>
         import { addProductToCart } from "../lib/cartStore";
         
-        // Buscamos todos los botones "add-to-cart-btn"
-        const botones = document.querySelectorAll('.add-to-cart-btn');
-
-        botones.forEach(btn => {
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const t = e.currentTarget;
                 
-                // Agregamos al store global
                 addProductToCart({
                     id: t.getAttribute('data-id'),
                     name: t.getAttribute('data-name'),
@@ -98,7 +112,6 @@ let isAdmin = false;
                     quantity: 1
                 });
 
-                // Abrimos el carrito visualmente (función definida en Layout)
                 if(window.toggleCart) {
                     window.toggleCart();
                 }
