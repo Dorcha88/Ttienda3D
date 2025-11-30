@@ -9,43 +9,53 @@ import "../styles/global.css";
     <meta name="viewport" content="width=device-width" />
     <title>Acceso - Prinlab3D</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
-  </head>
-  <body class="bg-gray-50 flex items-center justify-center h-screen font-sans">
     
-    <div class="absolute inset-0 bg-gradient-to-br from-pink-50 to-blue-50 -z-10"></div>
+    <script is:inline>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+  </head>
 
-    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm border border-gray-100 relative overflow-hidden">
+  <body class="bg-gray-50 dark:bg-[#CDFFFF] flex items-center justify-center h-screen font-sans transition-colors duration-300">
+    
+    <div class="absolute inset-0 bg-gradient-to-br from-pink-50 to-blue-50 dark:from-[#CDFFFF] dark:to-[#b0fcfc] -z-10 transition-colors duration-300"></div>
+
+    <div class="bg-white dark:bg-white p-10 rounded-3xl shadow-2xl w-full max-w-sm border border-gray-100 dark:border-cyan-200 relative overflow-hidden transition-all">
+      
       <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-blue-500"></div>
 
       <div class="text-center mb-8">
           <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-blue-600 mb-2">
             Bienvenido
           </h1>
-          <p class="text-gray-400 text-sm">Ingresa a tu cuenta Prinlab3D</p>
+          <p class="text-gray-400 dark:text-slate-500 text-sm">Ingresa a tu cuenta Prinlab3D</p>
       </div>
 
       <form id="auth-form" class="flex flex-col gap-5">
         
         <div>
-          <label class="block text-gray-600 text-xs font-bold uppercase mb-2 ml-1">Correo Electrónico</label>
+          <label class="block text-gray-600 dark:text-slate-600 text-xs font-bold uppercase mb-2 ml-1">Correo Electrónico</label>
           <input 
             type="email" 
             name="email" 
             id="email" 
             required
-            class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
+            class="w-full bg-gray-50 dark:bg-slate-50 border-2 border-gray-200 dark:border-slate-200 rounded-xl p-3 text-gray-800 dark:text-slate-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
             placeholder="usuario@ejemplo.com"
           />
         </div>
 
         <div>
-          <label class="block text-gray-600 text-xs font-bold uppercase mb-2 ml-1">Contraseña</label>
+          <label class="block text-gray-600 dark:text-slate-600 text-xs font-bold uppercase mb-2 ml-1">Contraseña</label>
           <input 
             type="password" 
             name="password" 
             id="password" 
             required
-            class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
+            class="w-full bg-gray-50 dark:bg-slate-50 border-2 border-gray-200 dark:border-slate-200 rounded-xl p-3 text-gray-800 dark:text-slate-800 focus:outline-none focus:border-pink-400 focus:bg-white transition placeholder-gray-400"
             placeholder="********"
           />
         </div>
@@ -61,42 +71,42 @@ import "../styles/global.css";
         </button>
 
         <div class="flex items-center my-2">
-            <div class="flex-grow border-t border-gray-200"></div>
+            <div class="flex-grow border-t border-gray-200 dark:border-slate-200"></div>
             <span class="mx-4 text-gray-400 text-xs">O</span>
-            <div class="flex-grow border-t border-gray-200"></div>
+            <div class="flex-grow border-t border-gray-200 dark:border-slate-200"></div>
         </div>
 
         <button 
           id="btn-register"
           type="button" 
-          class="w-full bg-white border-2 border-gray-200 text-gray-500 font-bold py-3 rounded-xl hover:bg-gray-50 hover:text-gray-700 transition"
+          class="w-full bg-white dark:bg-slate-50 border-2 border-gray-200 dark:border-slate-200 text-gray-500 dark:text-slate-600 font-bold py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-100 hover:text-gray-700 transition"
         >
           Crear cuenta nueva
         </button>
       </form>
       
       <div class="mt-6 text-center">
-        <a href="/" class="text-xs text-gray-400 hover:text-pink-500 transition">← Volver a la tienda</a>
+        <a href="/" class="text-xs text-gray-400 dark:text-slate-500 hover:text-pink-500 transition">← Volver a la tienda</a>
       </div>
     </div>
 
     <script>
       import { supabase } from "../lib/supabase";
 
-      const form = document.getElementById("auth-form") as HTMLFormElement;
-      const emailInput = document.getElementById("email") as HTMLInputElement;
-      const passwordInput = document.getElementById("password") as HTMLInputElement;
-      const btnLogin = document.getElementById("btn-login") as HTMLButtonElement;
-      const btnRegister = document.getElementById("btn-register") as HTMLButtonElement;
-      const messageMsg = document.getElementById("message") as HTMLParagraphElement;
+      const form = document.getElementById("auth-form");
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const btnLogin = document.getElementById("btn-login");
+      const btnRegister = document.getElementById("btn-register");
+      const messageMsg = document.getElementById("message");
 
-      const setAuthCookies = (access_token: string, refresh_token: string) => {
+      const setAuthCookies = (access_token, refresh_token) => {
         const maxAge = 60 * 60 * 24 * 7; 
         document.cookie = `sb-access-token=${access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
         document.cookie = `sb-refresh-token=${refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
       };
 
-      const showMessage = (text: string, isError = false) => {
+      const showMessage = (text, isError = false) => {
         messageMsg.innerText = text;
         messageMsg.classList.remove("hidden", "text-red-500", "text-green-500");
         messageMsg.classList.add(isError ? "text-red-500" : "text-green-500");
@@ -114,7 +124,7 @@ import "../styles/global.css";
         });
 
         if (error) {
-          showMessage(error.message, true);
+          showMessage("Error: " + error.message, true);
           btnLogin.disabled = false;
         } else {
           setAuthCookies(data.session.access_token, data.session.refresh_token);
@@ -145,8 +155,9 @@ import "../styles/global.css";
           showMessage(error.message, true);
           btnRegister.disabled = false;
         } else {
-          showMessage("¡Cuenta creada! Entrando...", false);
-          setTimeout(() => {
+          showMessage("¡Cuenta creada! Iniciando...", false);
+          // Auto-login tras registro
+          setTimeout(async () => {
              const loginEvent = new Event('submit');
              form.dispatchEvent(loginEvent);
           }, 1000);

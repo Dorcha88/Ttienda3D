@@ -10,6 +10,7 @@ const { cookies } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
 const refreshToken = cookies.get("sb-refresh-token")?.value;
 let isAdmin = false;
+let isLoggedIn = false;
 
 if (accessToken && refreshToken) {
   const { data: { session } } = await supabase.auth.setSession({
@@ -17,6 +18,7 @@ if (accessToken && refreshToken) {
     refresh_token: refreshToken,
   });
   if (session) {
+    isLoggedIn = true;
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
     isAdmin = profile?.role === 'admin';
   }
@@ -33,21 +35,26 @@ if (accessToken && refreshToken) {
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* ANIMACIÓN DEL BANNER (MARQUEE) */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+        /* ANIMACIÓN DEL BANNER (MARQUEE) MEJORADA */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
         
         .animate-marquee {
             display: inline-block;
-            white-space: nowrap;
-
-            animation: marquee 18s linear infinite;
-            padding-left: 100%;
+            animation: marquee 15s linear infinite;
+            padding-left: 100%; /* Empieza fuera de la pantalla */
         }
 
-        .banner-container:hover .animate-marquee {
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Pausar al pasar el mouse */
+        .marquee-container:hover .animate-marquee {
             animation-play-state: paused;
         }
 
@@ -57,7 +64,8 @@ if (accessToken && refreshToken) {
         
         .cart-sidebar {
             position: fixed; top: 0; right: 0; height: 100%; width: 400px; max-width: 100%;
-            @apply bg-white dark:bg-slate-900 border-l border-gray-100 dark:border-slate-800;
+            /* Azul Maya en fondo oscuro */
+            @apply bg-white dark:bg-[#CDFFFF] border-l border-gray-100 dark:border-cyan-200;
             box-shadow: -5px 0 25px rgba(0,0,0,0.1);
             transform: translateX(100%); transition: transform 0.3s ease-in-out;
             z-index: 100; display: flex; flex-direction: column;
@@ -80,16 +88,17 @@ if (accessToken && refreshToken) {
     <slot name="head" />
 </head>
 
-<body class="bg-gray-50 dark:bg-[#CDFFFF] text-gray-800 dark:text-slate-800 font-sans min-h-screen antialiased pt-36 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-[#CDFFFF] text-gray-800 dark:text-slate-900 font-sans min-h-screen antialiased pt-44 transition-colors duration-300">
 
     <header class="fixed top-0 left-0 right-0 z-50 shadow-sm bg-white/95 dark:bg-[#CDFFFF]/95 backdrop-blur-md border-b border-gray-200 dark:border-cyan-200 transition-colors duration-300">
         
-        <div class="banner-container bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-1.5 overflow-hidden relative shadow-inner cursor-default">
+        <div class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-1.5 marquee-container shadow-inner cursor-default">
             <div class="animate-marquee">
-                <p class="tracking-wide inline-flex items-center gap-4">
+                <span class="tracking-wide inline-flex items-center gap-4">
                     📦 Envíos lunes y viernes por <span class="text-yellow-200">BlueExpress</span> y <span class="text-yellow-200">Correos Chile</span> 🚚
-        
-                </p>
+                
+                   
+                </span>
             </div>
         </div>
 
@@ -103,6 +112,10 @@ if (accessToken && refreshToken) {
                     </a>
 
                     <div class="flex gap-2 lg:hidden">
+                        <button id="star-btn-mobile" class="p-2 rounded-full hover:bg-yellow-100 text-yellow-500 transition active:scale-90 border border-transparent hover:border-yellow-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </button>
+
                         <button id="theme-toggle-mobile" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-cyan-100 text-gray-500 dark:text-slate-600">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         </button>
@@ -132,21 +145,30 @@ if (accessToken && refreshToken) {
                 </nav>
 
                 <div class="hidden lg:flex gap-3 items-center border-l pl-4 border-gray-200 dark:border-cyan-300">
+                    
                     <button id="star-btn" class="p-2 rounded-full hover:bg-yellow-50 dark:hover:bg-cyan-100 text-yellow-500 transition active:scale-90 border border-transparent hover:border-yellow-300" title="Lluvia de Estrellas">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                     </button>
+
                     <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-cyan-100 text-gray-500 dark:text-slate-600 transition">
                         <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
+
+                    <a href="/login" class="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-cyan-100 text-gray-500 dark:text-slate-600 hover:text-blue-500 dark:hover:text-blue-500 transition" title={isLoggedIn ? "Mi Cuenta" : "Ingresar"}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </a>
+
                     <a href="/favoritos" class="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-cyan-100 text-gray-500 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-500 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         <span id="fav-badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                     </a>
+
                     <button onclick="toggleCart()" class="relative group bg-white dark:bg-white border-2 border-blue-400 dark:border-blue-400 text-blue-500 dark:text-blue-600 hover:bg-blue-50 p-2 rounded-full transition shadow-md">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                         <span id="cart-count-badge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">0</span>
                     </button>
+
                     {isAdmin && <a href="/admin" class="text-xs font-bold text-white bg-pink-500 px-3 py-1.5 rounded-full">Admin</a>}
                 </div>
             </div>
@@ -189,7 +211,7 @@ if (accessToken && refreshToken) {
     import { cartItems, removeProductFromCart } from "../lib/cartStore";
     import { favoriteItems } from "../lib/favoritesStore"; 
 
-    // LÓGICA ESTRELLAS
+    // ESTRELLAS
     let starInterval = null;
     function toggleRain() {
         if (starInterval) {
@@ -242,7 +264,13 @@ if (accessToken && refreshToken) {
         const overlay = document.getElementById('cart-overlay');
         if (sidebar && overlay) { sidebar.classList.toggle('cart-open'); overlay.classList.toggle('active'); }
     }
-    window.limpiarCarrito = function() { if(confirm("¿Vaciar?")) { cartItems.set({}); } };
+    
+    // Función segura
+    window.limpiarCarrito = function() { 
+        if(confirm("¿Vaciar?")) {
+            cartItems.set({}); 
+        }
+    };
 
     const container = document.getElementById('cart-items-container');
     const totalEl = document.getElementById('cart-total');
