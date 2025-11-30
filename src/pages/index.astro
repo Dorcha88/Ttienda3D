@@ -3,7 +3,7 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import { supabase } from "../lib/supabase";
 
-// 1. TRAER PRODUCTOS DE SUPABASE
+// 1. TRAER PRODUCTOS
 let productsDB = [];
 let uniqueMaterials = [];
 
@@ -14,12 +14,7 @@ const { data, error } = await supabase
 
 if (data) {
   productsDB = data;
-  // Extraer materiales únicos para el filtro
   uniqueMaterials = [...new Set(data.map(p => p.material).filter(m => m))]; 
-}
-
-if (error) {
-  console.error("Error cargando productos:", error.message);
 }
 
 // 2. LÓGICA DE ROLES
@@ -33,7 +28,6 @@ if (accessToken && refreshToken) {
     access_token: accessToken,
     refresh_token: refreshToken,
   });
-
   if (session) {
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
     isAdmin = profile?.role === 'admin';
@@ -42,41 +36,51 @@ if (accessToken && refreshToken) {
 ---
 
 <Layout title="Catálogo | Prinlab3D">
-
-<header class="relative pt-10 pb-12 px-4 text-center overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50">
-    <div class="relative max-w-5xl mx-auto">
-        <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight text-gray-900 leading-tight">
-    Impresiones 3D de Alta Calidad en 
     
-    <span class="block pt-4 pb-2 leading-normal text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-blue-600">
-        Región de Ñuble
-    </span>
-</h1>
-        <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-            Explora nuestra colección de figuras y  accesorios
-        </p>
-    </div>
-</header>
+    <style slot="head">
+        #splash-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+        .splash-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    </style>
 
+    <div id="splash-screen" class="bg-gradient-to-b from-white to-pink-100">
+        <div class="flex flex-col items-center animate-pulse">
+            <img src="/animacion.gif" alt="Cargando..." class="w-64 h-64 object-contain" />
+        </div>
+    </div>
+    <script is:inline>
+        if (sessionStorage.getItem('introVisto')) {
+            document.getElementById('splash-screen').style.display = 'none';
+        }
+    </script>
+
+    <header class="relative pt-10 pb-12 px-4 text-center overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50">
+        <div class="relative max-w-5xl mx-auto">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight text-gray-900 leading-tight">
+                Impresiones 3D de Alta Calidad en 
+                <span class="block pt-4 pb-2 leading-normal text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-blue-600">
+                    Región de Ñuble
+                </span>
+            </h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">Explora nuestra colección de figuras, accesorios y soluciones para el hogar.</p>
+        </div>
+    </header>
 
     <main id="catalogo" class="max-w-7xl mx-auto px-4 sm:px-6 py-12 bg-gray-50 min-h-screen">
-        
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8 sticky top-24 z-30">
             <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
-                
                 <div class="relative w-full md:w-1/3">
-                    <input type="text" id="searchInput" placeholder="🔍 Buscar personaje, producto..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition" />
+                    <input type="text" id="searchInput" placeholder="🔍 Buscar personaje..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition" />
                     <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-
                 <div class="flex flex-wrap gap-3 w-full md:w-auto">
                     <select id="materialFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 focus:border-blue-500 outline-none cursor-pointer">
                         <option value="">Todo Material</option>
-                        {uniqueMaterials.map(mat => (
-                            <option value={mat}>{mat}</option>
-                        ))}
+                        {uniqueMaterials.map(mat => <option value={mat}>{mat}</option>)}
                     </select>
-
                     <select id="sortFilter" class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 focus:border-blue-500 outline-none cursor-pointer">
                         <option value="newest">✨ Más Nuevos</option>
                         <option value="price-asc">💲 Precio: Menor a Mayor</option>
@@ -85,49 +89,30 @@ if (accessToken && refreshToken) {
                     </select>
                 </div>
             </div>
-            
             <div class="mt-3 text-xs text-gray-400 font-medium px-1 flex justify-between">
                 <span>Mostrando <span id="resultCount" class="text-gray-800 font-bold">{productsDB.length}</span> productos</span>
                 <span id="pageInfo" class="text-pink-600 font-bold"></span>
             </div>
         </div>
 
-        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[400px]">
-            </div>
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[400px]"></div>
 
         <div id="hiddenCards" class="hidden">
             {productsDB.map((product) => (
                 <article class="product-card group relative bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-pink-200 transition-all duration-300 hover:shadow-xl flex flex-col h-full"
-                    data-name={product.name.toLowerCase()}
-                    data-price={product.price}
-                    data-material={product.material || ""}
-                    data-date={product.created_at}
+                    data-name={product.name.toLowerCase()} data-price={product.price} data-material={product.material || ""} data-date={product.created_at}
                 >
                     <div class="h-64 w-full overflow-hidden bg-white p-4 flex items-center justify-center relative">
                         <img src={product.image_url} alt={product.name} class="w-full h-full object-contain group-hover:scale-110 transition duration-500" loading="lazy" />
-                        <div class="absolute top-3 right-3 bg-white/90 backdrop-blur text-pink-600 font-bold px-3 py-1 rounded-full text-sm shadow-md border border-pink-100">
-                            ${product.price.toLocaleString('es-CL')}
-                        </div>
-                        {product.material && (
-                            <div class="absolute bottom-3 left-3 bg-gray-100/90 backdrop-blur text-gray-600 text-xs font-bold px-2 py-1 rounded-lg border border-gray-200">
-                                {product.material}
-                            </div>
-                        )}
+                        <div class="absolute top-3 right-3 bg-white/90 backdrop-blur text-pink-600 font-bold px-3 py-1 rounded-full text-sm shadow-md border border-pink-100">${product.price.toLocaleString('es-CL')}</div>
+                        {product.material && <div class="absolute bottom-3 left-3 bg-gray-100/90 backdrop-blur text-gray-600 text-xs font-bold px-2 py-1 rounded-lg border border-gray-200">{product.material}</div>}
                     </div>
-
                     <div class="p-6 flex flex-col flex-1">
                         <h3 class="font-bold text-lg mb-2 text-gray-800 line-clamp-1">{product.name}</h3>
                         <p class="text-gray-500 text-sm mb-4 line-clamp-2 flex-1">{product.description || "Sin descripción."}</p>
-                        
-                        <button 
-                            class="add-to-cart-btn w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition shadow-md active:scale-95 flex items-center justify-center gap-2"
-                            data-id={product.id}
-                            data-name={product.name}
-                            data-price={product.price}
-                            data-image={product.image_url}
-                        >
-                            <span>Agregar</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        <button class="add-to-cart-btn w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition shadow-md active:scale-95 flex items-center justify-center gap-2"
+                            data-id={product.id} data-name={product.name} data-price={product.price} data-image={product.image_url}>
+                            <span>Agregar</span><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                         </button>
                     </div>
                 </article>
@@ -135,193 +120,142 @@ if (accessToken && refreshToken) {
         </div>
         
         <div id="noResults" class="hidden text-center py-20">
-            <div class="text-6xl mb-4">🔍</div>
-            <h3 class="text-xl font-bold text-gray-800">No encontramos productos</h3>
-            <p class="text-gray-500">Intenta con otro nombre o cambia los filtros.</p>
+            <div class="text-6xl mb-4">🔍</div><h3 class="text-xl font-bold text-gray-800">No encontramos productos</h3><p class="text-gray-500">Intenta con otro nombre.</p>
         </div>
-
-        <div id="paginationControls" class="flex justify-center items-center gap-2 mt-12">
-            </div>
-
+        <div id="paginationControls" class="flex justify-center items-center gap-2 mt-12"></div>
     </main>
 
- 
     <script>
-    import { addProductToCart } from "../lib/cartStore";
+        import { addProductToCart } from "../lib/cartStore";
 
-    // CONFIGURACIÓN PAGINACIÓN
-    const ITEMS_PER_PAGE = 12; 
-    let currentPage = 1;
-    let currentFilteredCards = []; 
-
-    // ELEMENTOS DOM
-    const searchInput = document.getElementById('searchInput');
-    const materialFilter = document.getElementById('materialFilter');
-    const sortFilter = document.getElementById('sortFilter');
-    const productsGrid = document.getElementById('productsGrid');
-    const hiddenCardsContainer = document.getElementById('hiddenCards');
-    const resultCount = document.getElementById('resultCount');
-    const noResults = document.getElementById('noResults');
-    const paginationControls = document.getElementById('paginationControls');
-    const pageInfo = document.getElementById('pageInfo');
-
-    const allCards = Array.from(hiddenCardsContainer.children);
-
-    // FUNCIÓN PRINCIPAL: FILTRAR Y ORDENAR
-    function filterProducts() {
-        const query = searchInput.value.toLowerCase();
-        const material = materialFilter.value;
-        const sort = sortFilter.value;
-
-        // 1. Filtrar
-        currentFilteredCards = allCards.filter(card => {
-            const name = card.getAttribute('data-name');
-            const mat = card.getAttribute('data-material');
-            const matchesSearch = name.includes(query);
-            const matchesMaterial = material === "" || mat === material;
-            return matchesSearch && matchesMaterial;
-        });
-
-        // 2. Ordenar
-        currentFilteredCards.sort((a, b) => {
-            const priceA = Number(a.getAttribute('data-price'));
-            const priceB = Number(b.getAttribute('data-price'));
-            const nameA = a.getAttribute('data-name');
-            const nameB = b.getAttribute('data-name');
-            const dateA = new Date(a.getAttribute('data-date')).getTime();
-            const dateB = new Date(b.getAttribute('data-date')).getTime();
-
-            if (sort === 'price-asc') return priceA - priceB;
-            if (sort === 'price-desc') return priceB - priceA;
-            if (sort === 'name-asc') return nameA.localeCompare(nameB);
-            if (sort === 'newest') return dateB - dateA;
-            return 0;
-        });
-
-        // 3. Resetear y Renderizar (SIN SCROLL)
-        currentPage = 1;
-        renderPage(false); // <--- AQUÍ ESTÁ EL CAMBIO: false para no hacer scroll al filtrar
-        resultCount.innerText = currentFilteredCards.length;
-    }
-
-    // RENDERIZAR PÁGINA ACTUAL
-    // Aceptamos un parámetro 'shouldScroll' que por defecto es falso
-    function renderPage(shouldScroll = false) {
-        productsGrid.innerHTML = "";
-        paginationControls.innerHTML = "";
-        
-        if (currentFilteredCards.length === 0) {
-            noResults.classList.remove('hidden');
-            pageInfo.innerText = "";
-            return;
-        } else {
-            noResults.classList.add('hidden');
-        }
-
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE;
-        const pageItems = currentFilteredCards.slice(start, end);
-
-        pageItems.forEach(card => {
-            const clone = card.cloneNode(true);
-            productsGrid.appendChild(clone);
-        });
-
-        const totalPages = Math.ceil(currentFilteredCards.length / ITEMS_PER_PAGE);
-        pageInfo.innerText = `Página ${currentPage} de ${totalPages}`;
-
-        renderPaginationControls(totalPages);
-        attachCartEvents(); 
-        
-        // SOLO HACEMOS SCROLL SI SE PIDE EXPLÍCITAMENTE (Al cambiar de página)
-        if (shouldScroll === true) {
-            productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }
-
-    // GENERAR BOTONES DE PAGINACIÓN
-    function renderPaginationControls(totalPages) {
-        if (totalPages <= 1) return;
-
-        // Botón Anterior
-        const prevBtn = createPageButton('←', () => {
-            if (currentPage > 1) { 
-                currentPage--; 
-                renderPage(true); // <--- AQUÍ SÍ QUEREMOS SCROLL
+        // === 1. LÓGICA SPLASH SCREEN ===
+        document.addEventListener("DOMContentLoaded", () => {
+            const splash = document.getElementById('splash-screen');
+            // Verificamos de nuevo por si acaso, aunque el script inline ya debió actuar
+            if (splash && splash.style.display !== 'none') {
+                setTimeout(() => {
+                    splash.classList.add('splash-hidden');
+                    setTimeout(() => { 
+                        splash.style.display = 'none'; 
+                        sessionStorage.setItem('introVisto', 'true');
+                    }, 800);
+                }, 2500); 
             }
-        }, currentPage === 1);
-        paginationControls.appendChild(prevBtn);
+        });
 
-        // Números
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
-        
-        if (endPage - startPage < 4) {
-            startPage = Math.max(1, endPage - 4);
-        }
+        // === 2. LÓGICA DE FILTROS Y PAGINACIÓN ===
+        const ITEMS_PER_PAGE = 12; 
+        let currentPage = 1;
+        let currentFilteredCards = []; 
 
-        for (let i = startPage; i <= endPage; i++) {
-            const btn = createPageButton(i, () => {
-                currentPage = i;
-                renderPage(true); // <--- AQUÍ SÍ QUEREMOS SCROLL
-            }, false, i === currentPage);
-            paginationControls.appendChild(btn);
-        }
+        const searchInput = document.getElementById('searchInput');
+        const materialFilter = document.getElementById('materialFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const productsGrid = document.getElementById('productsGrid');
+        const hiddenCardsContainer = document.getElementById('hiddenCards');
+        const resultCount = document.getElementById('resultCount');
+        const noResults = document.getElementById('noResults');
+        const paginationControls = document.getElementById('paginationControls');
+        const pageInfo = document.getElementById('pageInfo');
+        const allCards = Array.from(hiddenCardsContainer.children);
 
-        // Botón Siguiente
-        const nextBtn = createPageButton('→', () => {
-            if (currentPage < totalPages) { 
-                currentPage++; 
-                renderPage(true); // <--- AQUÍ SÍ QUEREMOS SCROLL
-            }
-        }, currentPage === totalPages);
-        paginationControls.appendChild(nextBtn);
-    }
+        function filterProducts() {
+            const query = searchInput.value.toLowerCase();
+            const material = materialFilter.value;
+            const sort = sortFilter.value;
 
-    function createPageButton(text, onClick, disabled = false, active = false) {
-        const btn = document.createElement('button');
-        btn.innerText = text;
-        btn.disabled = disabled;
-        btn.onclick = onClick;
-        
-        let classes = "w-10 h-10 rounded-full font-bold transition flex items-center justify-center ";
-        
-        if (active) {
-            classes += "bg-pink-500 text-white shadow-md transform scale-110";
-        } else if (disabled) {
-            classes += "bg-gray-100 text-gray-300 cursor-not-allowed";
-        } else {
-            classes += "bg-white text-gray-600 border border-gray-200 hover:bg-pink-50 hover:text-pink-500 hover:border-pink-200";
-        }
-        
-        btn.className = classes;
-        return btn;
-    }
-
-    function attachCartEvents() {
-        productsGrid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const t = e.currentTarget;
-                addProductToCart({
-                    id: t.getAttribute('data-id'),
-                    name: t.getAttribute('data-name'),
-                    price: Number(t.getAttribute('data-price') || 0),
-                    image_url: t.getAttribute('data-image') || '',
-                    quantity: 1
-                });
-                if(window.toggleCart) window.toggleCart();
+            currentFilteredCards = allCards.filter(card => {
+                const name = card.getAttribute('data-name');
+                const mat = card.getAttribute('data-material');
+                return name.includes(query) && (material === "" || mat === material);
             });
-        });
-    }
 
-    // EVENT LISTENERS
-    searchInput.addEventListener('input', filterProducts);
-    materialFilter.addEventListener('change', filterProducts);
-    sortFilter.addEventListener('change', filterProducts);
+            currentFilteredCards.sort((a, b) => {
+                const priceA = Number(a.getAttribute('data-price'));
+                const priceB = Number(b.getAttribute('data-price'));
+                const nameA = a.getAttribute('data-name');
+                const nameB = b.getAttribute('data-name');
+                const dateA = new Date(a.getAttribute('data-date')).getTime();
+                const dateB = new Date(b.getAttribute('data-date')).getTime();
 
-    // INICIALIZACIÓN
-    filterProducts(); 
+                if (sort === 'price-asc') return priceA - priceB;
+                if (sort === 'price-desc') return priceB - priceA;
+                if (sort === 'name-asc') return nameA.localeCompare(nameB);
+                if (sort === 'newest') return dateB - dateA;
+                return 0;
+            });
 
-</script>
+            currentPage = 1;
+            renderPage(false);
+            resultCount.innerText = currentFilteredCards.length;
+        }
 
+        function renderPage(shouldScroll = false) {
+            productsGrid.innerHTML = "";
+            paginationControls.innerHTML = "";
+            
+            if (currentFilteredCards.length === 0) {
+                noResults.classList.remove('hidden');
+                pageInfo.innerText = "";
+                return;
+            } else { noResults.classList.add('hidden'); }
+
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            currentFilteredCards.slice(start, end).forEach(card => productsGrid.appendChild(card.cloneNode(true)));
+
+            const totalPages = Math.ceil(currentFilteredCards.length / ITEMS_PER_PAGE);
+            pageInfo.innerText = `Página ${currentPage} de ${totalPages}`;
+            renderPaginationControls(totalPages);
+            attachCartEvents(); 
+            
+            if (shouldScroll) productsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderPaginationControls(totalPages) {
+            if (totalPages <= 1) return;
+            const prevBtn = createBtn('←', () => { if(currentPage > 1) { currentPage--; renderPage(true); } }, currentPage === 1);
+            paginationControls.appendChild(prevBtn);
+
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+
+            for (let i = start; i <= end; i++) {
+                paginationControls.appendChild(createBtn(i, () => { currentPage = i; renderPage(true); }, false, i === currentPage));
+            }
+            const nextBtn = createBtn('→', () => { if(currentPage < totalPages) { currentPage++; renderPage(true); } }, currentPage === totalPages);
+            paginationControls.appendChild(nextBtn);
+        }
+
+        function createBtn(text, onClick, disabled, active) {
+            const btn = document.createElement('button');
+            btn.innerText = text; btn.disabled = disabled; btn.onclick = onClick;
+            let cls = "w-10 h-10 rounded-full font-bold transition flex items-center justify-center ";
+            if(active) cls += "bg-pink-500 text-white shadow-md transform scale-110";
+            else if(disabled) cls += "bg-gray-100 text-gray-300 cursor-not-allowed";
+            else cls += "bg-white text-gray-600 border border-gray-200 hover:bg-pink-50 hover:text-pink-500";
+            btn.className = cls; return btn;
+        }
+
+        function attachCartEvents() {
+            productsGrid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    addProductToCart({
+                        id: e.currentTarget.getAttribute('data-id'),
+                        name: e.currentTarget.getAttribute('data-name'),
+                        price: Number(e.currentTarget.getAttribute('data-price')),
+                        image_url: e.currentTarget.getAttribute('data-image'),
+                        quantity: 1
+                    });
+                    if(window.toggleCart) window.toggleCart();
+                });
+            });
+        }
+
+        searchInput.addEventListener('input', filterProducts);
+        materialFilter.addEventListener('change', filterProducts);
+        sortFilter.addEventListener('change', filterProducts);
+        filterProducts(); 
+    </script>
 </Layout>
