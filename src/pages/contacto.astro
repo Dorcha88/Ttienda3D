@@ -1,17 +1,16 @@
 ---
-// src/pages/contacto.astro
 import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Contáctanos | Prinlab3D">
     
-    <div class="min-h-screen bg-gray-50 dark:bg-slate-950 py-12 px-4 transition-colors duration-300">
+    <div class="min-h-screen bg-gray-50 dark:bg-[#CDFFFF] py-12 px-4 transition-colors duration-300">
         
         <div class="max-w-4xl mx-auto text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-6 tracking-tight">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 dark:text-slate-900 mb-6 tracking-tight">
                 Hablemos de tu <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-blue-600">Próxima Idea</span>
             </h1>
-            <p class="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p class="text-gray-600 dark:text-slate-600 text-lg max-w-2xl mx-auto leading-relaxed">
                 ¿Tienes un proyecto en mente, una duda sobre un producto o quieres una figura personalizada? Estamos aquí para ayudarte.
             </p>
         </div>
@@ -20,75 +19,72 @@ import Layout from '../layouts/Layout.astro';
             
             <div class="grid grid-cols-1 gap-6">
                 
-                <a href="https://wa.me/56921955584" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-lg hover:border-green-200 dark:hover:border-green-900 transition-all transform hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+                <a href="https://wa.me/56921955584" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-cyan-200 hover:shadow-lg hover:border-green-200 dark:hover:border-green-200 transition-all transform hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-50 flex items-center justify-center text-green-600 dark:text-green-600 group-hover:scale-110 transition-transform">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" class="w-8 h-8" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">WhatsApp</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">+56 9 2195 5584</p>
-                        <span class="text-xs text-green-600 dark:text-green-400 font-bold mt-1 inline-block">Respuesta rápida</span>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-slate-800 group-hover:text-green-600 transition-colors">WhatsApp</h3>
+                        <p class="text-gray-500 dark:text-slate-500 text-sm font-medium">+56 9 2195 5584</p>
+                        <span class="text-xs text-green-600 font-bold mt-1 inline-block">Respuesta rápida</span>
                     </div>
                 </a>
 
-                <a href="https://www.instagram.com/prinlab3d/" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-lg hover:border-pink-200 dark:hover:border-pink-900 transition-all transform hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center text-pink-600 dark:text-pink-400 group-hover:scale-110 transition-transform">
+                <a href="https://www.instagram.com/prinlab3d/" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-cyan-200 hover:shadow-lg hover:border-pink-200 dark:hover:border-pink-200 transition-all transform hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-full bg-pink-100 dark:bg-pink-50 flex items-center justify-center text-pink-600 dark:text-pink-600 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-white group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">Instagram</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">@prinlab3d</p>
-                        <span class="text-xs text-pink-500 dark:text-pink-400 font-bold mt-1 inline-block">Síguenos y verás fotos</span>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-slate-800 group-hover:text-pink-600 transition-colors">Instagram</h3>
+                        <p class="text-gray-500 dark:text-slate-500 text-sm font-medium">@prinlab3d</p>
+                        <span class="text-xs text-pink-500 font-bold mt-1 inline-block">Síguenos y verás fotos</span>
                     </div>
                 </a>
 
-                <a href="https://www.youtube.com/@prinlab3d" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-lg hover:border-red-200 dark:hover:border-red-900 transition-all transform hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                <a href="https://www.youtube.com/@prinlab3d" target="_blank" class="group flex items-center gap-6 p-6 bg-white dark:bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-cyan-200 hover:shadow-lg hover:border-red-200 dark:hover:border-red-200 transition-all transform hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-50 flex items-center justify-center text-red-600 dark:text-red-600 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">YouTube</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">@prinlab3d</p>
-                        <span class="text-xs text-red-500 dark:text-red-400 font-bold mt-1 inline-block">Videos y Tutoriales</span>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-slate-800 group-hover:text-red-600 transition-colors">YouTube</h3>
+                        <p class="text-gray-500 dark:text-slate-500 text-sm font-medium">@prinlab3d</p>
+                        <span class="text-xs text-red-500 font-bold mt-1 inline-block">Videos y Tutoriales</span>
                     </div>
                 </a>
 
-                <a href="mailto:prinlabtresd@gmail.com" class="group flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-900 transition-all transform hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                <a href="mailto:prinlabtresd@gmail.com" class="group flex items-center gap-6 p-6 bg-white dark:bg-white rounded-2xl shadow-sm border border-gray-100 dark:border-cyan-200 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-200 transition-all transform hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-50 flex items-center justify-center text-blue-600 dark:text-blue-600 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Correo</h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">prinlabtresd@gmail.com</p>
-                        <span class="text-xs text-blue-500 dark:text-blue-400 font-bold mt-1 inline-block">Consultas formales</span>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-slate-800 group-hover:text-blue-600 transition-colors">Correo</h3>
+                        <p class="text-gray-500 dark:text-slate-500 text-sm font-medium">prinlabtresd@gmail.com</p>
+                        <span class="text-xs text-blue-500 font-bold mt-1 inline-block">Consultas formales</span>
                     </div>
                 </a>
-
             </div>
 
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800 relative overflow-hidden text-center transition-colors">
-                
+            <div class="bg-white dark:bg-white p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-cyan-200 relative overflow-hidden text-center transition-colors">
                 <div class="flex justify-center mb-6">
-                    <img src="/ani-para-contacto.gif" alt="Perrito Prinlab3D" class="w-40 h-auto object-contain hover:scale-105 transition-transform rounded-full border-4 border-transparent dark:border-slate-700" />
+                    <img src="/ani-para-contacto.gif" alt="Perrito Prinlab3D" class="w-40 h-auto object-contain hover:scale-105 transition-transform rounded-full border-4 border-transparent dark:border-cyan-100" />
                 </div>
-                
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2 relative z-10">Envíanos un mensaje rápido</h2>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Te responderemos lo antes posible.</p>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-800 mb-2 relative z-10">Envíanos un mensaje rápido</h2>
+                <p class="text-gray-500 dark:text-slate-500 text-sm mb-6">Te responderemos lo antes posible.</p>
                 
                 <form id="contact-form" class="space-y-4 relative z-10 text-left">
                     <div>
-                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">Tu Nombre</label>
-                        <input type="text" id="contact-name" placeholder="Ej: Maria" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 dark:focus:ring-pink-900 outline-none transition" />
+                        <label class="block text-sm font-bold text-gray-600 dark:text-slate-600 mb-1">Tu Nombre</label>
+                        <input type="text" id="contact-name" placeholder="Ej: Maria" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-200 bg-gray-50 dark:bg-slate-50 text-gray-800 dark:text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition" />
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-600 dark:text-gray-300 mb-1">¿Qué necesitas?</label>
-                        <textarea id="contact-msg" rows="4" placeholder="Hola, me gustaría cotizar una figura de..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 dark:focus:ring-pink-900 outline-none transition resize-none"></textarea>
+                        <label class="block text-sm font-bold text-gray-600 dark:text-slate-600 mb-1">¿Qué necesitas?</label>
+                        <textarea id="contact-msg" rows="4" placeholder="Hola, me gustaría cotizar una figura de..." class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-200 bg-gray-50 dark:bg-slate-50 text-gray-800 dark:text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-100 outline-none transition resize-none"></textarea>
                     </div>
                     <button type="button" id="btn-send-contact" class="w-full bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold py-4 rounded-xl shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2">
                         <span>Enviar Mensaje</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                     </button>
-                    <p class="text-xs text-center text-gray-400 dark:text-gray-500 mt-4">Al enviar, se abrirá WhatsApp con tu mensaje listo.</p>
+                    <p class="text-xs text-center text-gray-400 mt-4">Al enviar, se abrirá WhatsApp con tu mensaje listo.</p>
                 </form>
             </div>
 
@@ -99,12 +95,7 @@ import Layout from '../layouts/Layout.astro';
         document.getElementById('btn-send-contact').addEventListener('click', () => {
             const name = document.getElementById('contact-name').value;
             const text = document.getElementById('contact-msg').value;
-
-            if(!name || !text) {
-                alert("Por favor escribe tu nombre y un mensaje.");
-                return;
-            }
-
+            if(!name || !text) { alert("Por favor escribe tu nombre y un mensaje."); return; }
             const msg = `Hola Prinlab3D! 👋 Soy *${name}*.\n\n${text}`;
             window.open("https://wa.me/56921955584?text=" + encodeURIComponent(msg), "_blank");
         });
