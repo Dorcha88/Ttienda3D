@@ -139,26 +139,18 @@ if (accessToken && refreshToken) {
 
     <slot />
 
-<footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-10 text-center text-gray-500 dark:text-gray-400 text-sm transition-colors duration-300">
+    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-10 text-center text-gray-500 dark:text-gray-400 text-sm transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-4">
             <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Prinlab3D</h3>
             <p class="mb-4">Impresión 3D de alta calidad en la Región de Ñuble.</p>
-            
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-8 text-xs md:text-sm font-medium">
-                <span class="flex items-center gap-1 hover:text-pink-500 transition">
-                    📧 prinlabtresd@gmail.com
-                </span>
-                <span class="flex items-center gap-1 hover:text-green-500 transition">
-                    📱 +56 9 2195 5584
-                </span>
-                <span class="flex items-center gap-1 hover:text-blue-500 transition">
-                    ⏰ Lun-Sáb: 10:30 - 18:00 hrs
-                </span>
+            <div class="flex justify-center gap-6 mb-8 text-xs md:text-sm font-medium">
+                <span class="flex items-center gap-1">📧 prinlabtresd@gmail.com</span>
+                <span class="flex items-center gap-1">📱 +56 9 2195 5584</span>
             </div>
-
             <p class="text-xs text-gray-400 dark:text-gray-600">© {new Date().getFullYear()} Prinlab3D. Todos los derechos reservados.</p>
         </div>
     </footer>
+
     <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
     <div id="cart-sidebar" class="cart-sidebar">
         <div class="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-pink-50 to-white dark:from-slate-800 dark:to-slate-900">
