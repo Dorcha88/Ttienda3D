@@ -44,6 +44,10 @@ if (accessToken && refreshToken) {
         .cart-open { transform: translateX(0) !important; }
         .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 90; display: none; }
         .cart-overlay.active { display: block; }
+
+        /* Ocultar barra de scroll en navegación pero permitir deslizar */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
     
     <script is:inline>
@@ -56,61 +60,105 @@ if (accessToken && refreshToken) {
     <slot name="head" />
 </head>
 
-<body class="bg-gray-50 dark:bg-slate-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen antialiased pt-36 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-slate-950 text-gray-800 dark:text-gray-100 font-sans min-h-screen antialiased pt-44 transition-colors duration-300">
 
-    <header class="fixed top-0 left-0 right-0 z-50 shadow-sm">
-        <div class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-2 text-center shadow-inner relative z-20">
+    <header class="fixed top-0 left-0 right-0 z-50 shadow-sm bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 transition-colors duration-300">
+        
+        <div class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-1.5 text-center shadow-inner">
             <p class="tracking-wide flex items-center justify-center gap-2">
-                📦 Envíos lunes y viernes por <span class="text-yellow-200">BlueExpress</span> y <span class="text-yellow-200">Correos Chile</span> 🚚
+                📦 Envíos lunes y viernes por <span class="text-yellow-200">BlueExpress</span> y <span class="text-yellow-200">Correos</span> 🚚
             </p>
         </div>
 
-        <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-b border-gray-200 dark:border-slate-800 transition-colors duration-300">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-                <a href="/" class="flex items-center group transition-opacity hover:opacity-80">
-                    <img src="/logo.jpeg" alt="Logo" class="h-14 md:h-16 w-auto object-contain rounded-full" />
-                </a>
-                <div class="flex gap-4 items-center">
+        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-3">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                
+                <div class="w-full lg:w-auto flex justify-between items-center">
+                    <a href="/" class="flex items-center group transition-opacity hover:opacity-80">
+                        <img src="/logo.jpeg" alt="Logo" class="h-12 w-auto object-contain rounded-full" />
+                        <span class="ml-2 text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 hidden sm:block">Prinlab3D</span>
+                    </a>
+
+                    <div class="flex gap-2 lg:hidden">
+                        <button id="theme-toggle-mobile" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-yellow-400">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        </button>
+                        <button onclick="toggleCart()" class="relative p-2 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                            <span id="cart-count-badge-mobile" class="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <nav class="flex items-center gap-3 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 hide-scroll">
+                    
+                    <a href="/nosotros" class="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 dark:bg-pink-900/40 text-slate-800 dark:text-pink-100 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-blue-500">👥</span> Quiénes Somos
+                    </a>
+
+                    <a href="/#destacados" class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/40 text-slate-800 dark:text-blue-100 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-yellow-500">⭐</span> Destacados
+                    </a>
+
+                    <a href="/#catalogo" class="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/40 text-slate-800 dark:text-green-100 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-pink-500">🛍️</span> Productos
+                    </a>
+
+                    <a href="https://www.instagram.com/prinlab3d/" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-900/40 text-slate-800 dark:text-orange-100 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-black">📱</span> Redes Sociales
+                    </a>
+
+                    <a href="/contacto" class="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/40 text-slate-800 dark:text-purple-100 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-gray-600">📞</span> Contacto
+                    </a>
+
+                </nav>
+
+                <div class="hidden lg:flex gap-3 items-center border-l pl-4 border-gray-200 dark:border-slate-700">
                     
                     <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-yellow-400 transition">
                         <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-slate-700" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                     </button>
 
-                    <a href="/favoritos" class="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-500 transition mr-1">
+                    <a href="/favoritos" class="relative group p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-500 transition">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         <span id="fav-badge" class="hidden absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                     </a>
 
-                    <a href="/nosotros" class="hidden md:block text-sm font-bold text-gray-500 dark:text-gray-300 hover:text-pink-500">Nosotros</a>
-                    <a href="/contacto" class="hidden md:block text-sm font-bold text-gray-500 dark:text-gray-300 hover:text-purple-500">Contacto</a>
-                    <a href="/#catalogo" class="hidden md:block text-sm font-bold text-gray-500 dark:text-gray-300 hover:text-blue-500">Productos</a>
-                    
-                    {isAdmin && <a href="/admin" class="text-xs font-bold text-white bg-pink-500 px-3 py-1.5 rounded-full">Admin</a>}
-                    
                     <button onclick="toggleCart()" class="relative group bg-white dark:bg-slate-800 border-2 border-blue-400 dark:border-blue-500 text-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 p-2 rounded-full transition shadow-md">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                         <span id="cart-count-badge" class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">0</span>
                     </button>
+
+                    {isAdmin && <a href="/admin" class="text-xs font-bold text-white bg-pink-500 px-3 py-1.5 rounded-full">Admin</a>}
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
 
     <slot />
 
-    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-10 text-center text-gray-500 dark:text-gray-400 text-sm transition-colors duration-300">
+<footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-10 text-center text-gray-500 dark:text-gray-400 text-sm transition-colors duration-300">
         <div class="max-w-4xl mx-auto px-4">
             <h3 class="font-bold text-gray-800 dark:text-white text-lg mb-4">Prinlab3D</h3>
             <p class="mb-4">Impresión 3D de alta calidad en la Región de Ñuble.</p>
-            <div class="flex justify-center gap-6 mb-8 text-xs md:text-sm font-medium">
-                <span class="flex items-center gap-1">📧 prinlabtresd@gmail.com</span>
-                <span class="flex items-center gap-1">📱 +56 9 2195 5584</span>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-8 text-xs md:text-sm font-medium">
+                <span class="flex items-center gap-1 hover:text-pink-500 transition">
+                    📧 prinlabtresd@gmail.com
+                </span>
+                <span class="flex items-center gap-1 hover:text-green-500 transition">
+                    📱 +56 9 2195 5584
+                </span>
+                <span class="flex items-center gap-1 hover:text-blue-500 transition">
+                    ⏰ Lun-Sáb: 10:30 - 18:00 hrs
+                </span>
             </div>
+
             <p class="text-xs text-gray-400 dark:text-gray-600">© {new Date().getFullYear()} Prinlab3D. Todos los derechos reservados.</p>
         </div>
     </footer>
-
     <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
     <div id="cart-sidebar" class="cart-sidebar">
         <div class="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-pink-50 to-white dark:from-slate-800 dark:to-slate-900">
@@ -132,48 +180,41 @@ if (accessToken && refreshToken) {
     import { cartItems, removeProductFromCart } from "../lib/cartStore";
     import { favoriteItems } from "../lib/favoritesStore"; 
 
-    // --- LÓGICA MODO OSCURO ---
+    // MODO OSCURO
     const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeToggleBtnMobile = document.getElementById('theme-toggle-mobile');
     const darkIcon = document.getElementById('theme-toggle-dark-icon');
     const lightIcon = document.getElementById('theme-toggle-light-icon');
 
+    function toggleTheme() {
+        if (localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark');
+            darkIcon?.classList.add('hidden'); lightIcon?.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light');
+            lightIcon?.classList.add('hidden'); darkIcon?.classList.remove('hidden');
+        }
+    }
+
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        lightIcon.classList.remove('hidden');
+        lightIcon?.classList.remove('hidden');
     } else {
-        darkIcon.classList.remove('hidden');
+        darkIcon?.classList.remove('hidden');
     }
 
-    if(themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', function() {
-            darkIcon.classList.toggle('hidden');
-            lightIcon.classList.toggle('hidden');
-            if (localStorage.getItem('theme')) {
-                if (localStorage.getItem('theme') === 'light') {
-                    document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark');
-                } else {
-                    document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light');
-                }
-            } else {
-                if (document.documentElement.classList.contains('dark')) {
-                    document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light');
-                } else {
-                    document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark');
-                }
-            }
-        });
-    }
+    if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+    if(themeToggleBtnMobile) themeToggleBtnMobile.addEventListener('click', toggleTheme);
 
-    // --- LÓGICA FAVORITOS ---
+    // FAVORITOS
     const favBadge = document.getElementById('fav-badge');
     favoriteItems.subscribe(items => {
         const count = Object.keys(items).length;
         if(favBadge) {
-            if (count > 0) favBadge.classList.remove('hidden');
-            else favBadge.classList.add('hidden');
+            if (count > 0) favBadge.classList.remove('hidden'); else favBadge.classList.add('hidden');
         }
     });
 
-    // --- LÓGICA CARRITO ---
+    // CARRITO
     window.toggleCart = () => {
         const sidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('cart-overlay');
@@ -181,17 +222,22 @@ if (accessToken && refreshToken) {
             sidebar.classList.toggle('cart-open'); overlay.classList.toggle('active');
         }
     }
-    window.limpiarCarrito = () => { if(confirm("¿Vaciar?")) cartItems.set({}); };
+    window.limpiarCarrito = () => { 
+        if(confirm("¿Vaciar?")) cartItems.set({}); 
+    };
 
     const container = document.getElementById('cart-items-container');
     const totalEl = document.getElementById('cart-total');
     const countEl = document.getElementById('cart-count-badge');
+    const countElMobile = document.getElementById('cart-count-badge-mobile');
 
     cartItems.subscribe(items => {
         const products = Object.values(items);
         const total = products.reduce((acc, i) => acc + (Number(i.price) * Number(i.quantity)), 0);
         const totalCount = products.reduce((acc, i) => acc + i.quantity, 0);
+        
         if(countEl) countEl.innerText = totalCount;
+        if(countElMobile) countElMobile.innerText = totalCount;
         if(totalEl) totalEl.innerText = `$${total.toLocaleString('es-CL')}`;
 
         if (container) {
