@@ -17,21 +17,14 @@ const { data, error } = await supabase
 if (data) {
   productsDB = data;
   
-  // Lógica Destacados
+  // Destacados
   featuredProducts = data.filter(p => p.is_featured === true);
-  if (featuredProducts.length === 0) {
-      featuredProducts = data.slice(0, 4);
-  } else {
-      featuredProducts = featuredProducts.slice(0, 4);
-  }
+  if (featuredProducts.length === 0) { featuredProducts = data.slice(0, 4); } 
+  else { featuredProducts = featuredProducts.slice(0, 4); }
 
   // Filtros
   uniqueMaterials = [...new Set(data.map(p => p.material).filter(m => m))];
   uniqueCategories = [...new Set(data.map(p => p.category).filter(c => c))]; 
-}
-
-if (error) {
-  console.error("Error cargando productos:", error.message);
 }
 
 // 2. LÓGICA DE ROLES
@@ -52,8 +45,33 @@ if (accessToken && refreshToken) {
 <Layout title="Catálogo | Prinlab3D">
     
     <style slot="head">
-        #splash-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.8s ease-out, visibility 0.8s; }
-        .splash-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        /* DEFINICIÓN DE LA ANIMACIÓN DE AUTO-DESTRUCCIÓN */
+        @keyframes fadeOutAnimation {
+            0% { opacity: 1; visibility: visible; }
+            80% { opacity: 1; visibility: visible; } /* Se mantiene visible 2.5 seg aprox */
+            100% { opacity: 0; visibility: hidden; } /* Desaparece */
+        }
+
+        #splash-screen { 
+            position: fixed; inset: 0; z-index: 99999; 
+            display: flex; align-items: center; justify-content: center; 
+            
+            /* ESTO ES LO QUE LO ARREGLA: */
+            /* 1. Ejecuta la animación 'fadeOutAnimation' */
+            /* 2. Dura 3.5 segundos en total */
+            /* 3. 'forwards' hace que se quede invisible al final */
+            animation: fadeOutAnimation 3.5s ease-out forwards;
+            
+            /* CRUCIAL: Permite hacer clic a través del splash si falla visualmente */
+            pointer-events: none; 
+        }
+        
+        /* Bloqueamos clicks solo en la imagen mientras sea visible */
+        #splash-screen img {
+            pointer-events: auto;
+        }
+
+        .splash-hidden { opacity: 0 !important; visibility: hidden !important; }
     </style>
 
     <div id="splash-screen" class="bg-gradient-to-b from-white to-pink-100 dark:from-slate-900 dark:to-purple-900">
@@ -61,8 +79,22 @@ if (accessToken && refreshToken) {
             <img src="/animacion.gif" alt="Cargando..." class="w-64 h-64 object-contain" />
         </div>
     </div>
+
     <script is:inline>
-        if (sessionStorage.getItem('introVisto')) { document.getElementById('splash-screen').style.display = 'none'; }
+        // 1. Chequeo instantáneo
+        if (sessionStorage.getItem('introVisto')) {
+            var s = document.getElementById('splash-screen');
+            if(s) s.style.display = 'none'; // Lo mata al instante
+        }
+
+        // 2. Función simple de limpieza
+        setTimeout(function() {
+            var s = document.getElementById('splash-screen');
+            if(s) {
+                s.style.display = 'none';
+                sessionStorage.setItem('introVisto', 'true');
+            }
+        }, 3500); // Se ejecuta a los 3.5 segundos sí o sí
     </script>
 
     <header class="relative pt-10 pb-12 px-4 text-center overflow-hidden bg-gradient-to-br from-pink-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -86,7 +118,6 @@ if (accessToken && refreshToken) {
                     Ver todo <span class="text-xl">→</span>
                 </a>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {featuredProducts.map((product) => (
                     <article class="group relative bg-gray-50 dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all duration-300 hover:shadow-xl flex flex-col h-full transform hover:-translate-y-1">
@@ -183,15 +214,10 @@ if (accessToken && refreshToken) {
         </div>
         <div id="paginationControls" class="flex justify-center items-center gap-2 mt-12"></div>
 
-       <section class="mt-24 py-12 bg-blue-50 dark:bg-slate-900/50 rounded-3xl border border-blue-100 dark:border-slate-800 text-center relative overflow-hidden">
+        <section class="mt-24 py-12 bg-blue-50 dark:bg-slate-900/50 rounded-3xl border border-blue-100 dark:border-slate-800 text-center relative overflow-hidden">
             <div class="relative z-10">
-                <h2 class="text-3xl font-extrabold text-slate-800 dark:text-white mb-4 flex items-center justify-center gap-2">
-                    ¡Contamos con Compra Asistida! 🤝
-                </h2>
-                <p class="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10 text-lg leading-relaxed px-4">
-                    Si fuiste adjudicado con un <strong>Capital Semilla, Capital Abeja, FOSIS</strong> u otro y necesitas hacer tu compra, nosotros te ayudamos con la facturación y gestión completa.
-                </p>
-                
+                <h2 class="text-3xl font-extrabold text-slate-800 dark:text-white mb-4 flex items-center justify-center gap-2">¡Contamos con Compra Asistida! 🤝</h2>
+                <p class="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10 text-lg leading-relaxed px-4">Si fuiste adjudicado con un <strong>Capital Semilla, Capital Abeja, FOSIS</strong> u otro y necesitas hacer tu compra, nosotros te ayudamos con la facturación y gestión completa.</p>
                 <div class="flex flex-wrap justify-center items-center gap-8 mb-10 px-4">
                     <div class="bg-white p-4 rounded-xl shadow-sm h-28 w-60 flex items-center justify-center hover:scale-105 transition duration-300">
                         <img src="Logo_Sercotec.png" alt="Sercotec" class="max-h-full max-w-full object-contain">
@@ -200,135 +226,53 @@ if (accessToken && refreshToken) {
                         <img src="logo-FOSIS.png" alt="FOSIS" class="max-h-full max-w-full object-contain">
                     </div>
                 </div>
-
                 <a href="https://wa.me/56921955584?text=Hola%20Prinlab3D%2C%20necesito%20una%20cotizaci%C3%B3n%20para%20Compra%20Asistida%20(Sercotec%2FFosis)" target="_blank" class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-full transition shadow-lg hover:shadow-blue-500/30 transform hover:-translate-y-1">
-                    <span>Solicitar Cotización</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <span>Solicitar Cotización</span><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 </a>
             </div>
         </section>
 
-
-
         <section class="mt-24 mb-16">
-            <h2 class="text-3xl font-extrabold text-center text-slate-800 dark:text-white mb-10">
-                Preguntas Frecuentes 🤔
-            </h2>
-
+            <h2 class="text-3xl font-extrabold text-center text-slate-800 dark:text-white mb-10">Preguntas Frecuentes 🤔</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-                
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>📄 ¿Emiten boletas y facturas?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Sí, emitimos tanto boleta como factura. Somos una PyME establecida de la Región de Ñuble.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>📄 ¿Emiten boletas y facturas?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Sí, emitimos tanto boleta como factura. Somos una PyME establecida de la Región de Ñuble.</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>🚚 ¿Hacen envíos a regiones?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Sí. Hacemos envíos <strong>por pagar a domicilio</strong> vía BlueExpress y Correos de Chile. Para envíos a punto Pick-Up (sucursal), el envío debe ser pagado con anterioridad.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>🚚 ¿Hacen envíos a regiones?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Sí. Hacemos envíos <strong>por pagar a domicilio</strong> vía BlueExpress y Correos de Chile.</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>🏪 ¿Tienen tienda física en Ñuble?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        ¡Sí! Nuestro punto de venta está en <strong>Chillán</strong>, en el Local 6 llamado "Cuatro Estaciones", ubicado en la <strong>Galería Pacífico</strong>.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>🏪 ¿Tienen tienda física en Ñuble?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">¡Sí! Nuestro punto de venta está en <strong>Chillán</strong>, en el Local 6 llamado "Cuatro Estaciones", Galería Pacífico.</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>🤝 ¿Trabajan con proyectos FOSIS o Sercotec?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Sí, tenemos amplia experiencia trabajando con beneficiarios de FOSIS y Sercotec (Compra Asistida). No dudes en cotizar con nosotros.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>🤝 ¿Trabajan con FOSIS o Sercotec?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Sí, tenemos amplia experiencia trabajando con beneficiarios de FOSIS y Sercotec (Compra Asistida).</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>🧬 ¿Qué materiales trabajan?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Trabajamos principalmente con material rígido <strong>PLA</strong> (biodegradable) y material flexible <strong>TPU</strong>.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>🧬 ¿Qué materiales trabajan?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Trabajamos con material rígido <strong>PLA</strong> (biodegradable) y material flexible <strong>TPU</strong>.</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>💰 ¿Cómo es el proceso de compra?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Para pedidos personalizados, se realiza una cotización. Si el cliente acepta, debe abonar el <strong>50%</strong> para comenzar el trabajo. <br><em class="text-xs text-gray-400">*El abono aplica solo para particulares, no para beneficiarios Sercotec/FOSIS.</em>
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>💰 ¿Proceso de compra?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Se cotiza y si el cliente acepta, abona el 50% para comenzar (solo particulares, no Sercotec/FOSIS).</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>⏳ ¿Cuál es el tiempo de fabricación?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        El tiempo estimado es de <strong>2 a 4 días hábiles</strong>, dependiendo de la demanda y complejidad del pedido.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>⏳ ¿Tiempo de fabricación?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">De <strong>2 a 4 días hábiles</strong>, dependiendo de la demanda.</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>💳 ¿Qué medios de pago aceptan?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Aceptamos Efectivo, Transferencia, Débito y Crédito (en cuotas) a través de <strong>VentiPay</strong>.
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>💳 ¿Medios de pago?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Efectivo, Transferencia, Débito y Crédito (VentiPay).</p>
                 </details>
-
                 <details class="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 dark:open:ring-pink-900 transition-all duration-300">
-                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none">
-                        <span>🕒 ¿Cuál es el horario de atención?</span>
-                        <span class="transition group-open:rotate-180">
-                            <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
-                        </span>
-                    </summary>
-                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">
-                        Atendemos de <strong>Lunes a Sábado</strong> en horario continuado de <strong>10:30 a 18:00 hrs</strong> (6:00 PM).
-                    </p>
+                    <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-white list-none"><span>🕒 ¿Horario de atención?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                    <p class="text-gray-600 dark:text-gray-400 mt-3 text-sm leading-relaxed">Lunes a Sábado continuado de <strong>10:30 a 18:00 hrs</strong>.</p>
                 </details>
-
             </div>
         </section>
-
-
 
     </main>
 
