@@ -144,7 +144,7 @@ import "../styles/global.css";
       const itemsList = document.getElementById("items-list");
       const totalLabel = document.getElementById("total-price");
       const subtotalLabel = document.getElementById("subtotal-price");
-      
+
       // 1. CAMBIO AQUÍ: Buscamos el botón de VentiPay, no el de WhatsApp
       const btnVentiPay = document.getElementById("btn-ventipay");
       const btnClean = document.getElementById("btn-clean");
@@ -206,7 +206,10 @@ import "../styles/global.css";
         });
 
         // Calcular Totales
-        const total = products.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        const total = products.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0
+        );
         const totalFmt = "$" + total.toLocaleString("es-CL");
 
         if (totalLabel) totalLabel.innerText = totalFmt;
@@ -214,37 +217,36 @@ import "../styles/global.css";
 
         // 2. CAMBIO AQUÍ: Lógica de Pago con VentiPay
         if (btnVentiPay) {
-            btnVentiPay.onclick = async () => {
-                const originalText = btnVentiPay.innerHTML;
-                btnVentiPay.innerHTML = "Conectando..."; // Feedback visual
-                btnVentiPay.disabled = true;
-                btnVentiPay.classList.add('opacity-70');
+          btnVentiPay.onclick = async () => {
+            const originalText = btnVentiPay.innerHTML;
+            btnVentiPay.innerHTML = "Conectando..."; // Feedback visual
+            btnVentiPay.disabled = true;
+            btnVentiPay.classList.add("opacity-70");
 
-                try {
-                    // Llamamos a nuestra API
-                    const response = await fetch('/api/checkout', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ items: products })
-                    });
+            try {
+              // Llamamos a nuestra API
+              const response = await fetch("/api/checkout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ items: products }),
+              });
 
-                    const data = await response.json();
+              const data = await response.json();
 
-                    if (data.url) {
-                        // Si VentiPay responde bien, nos vamos a pagar
-                        window.location.href = data.url;
-                    } else {
-                        throw new Error(data.error || "Error desconocido");
-                    }
-
-                } catch (error) {
-                    console.error(error);
-                    alert("Hubo un problema al iniciar el pago. Revisa la consola.");
-                    btnVentiPay.disabled = false;
-                    btnVentiPay.innerHTML = originalText;
-                    btnVentiPay.classList.remove('opacity-70');
-                }
-            };
+              if (data.url) {
+                // Si VentiPay responde bien, nos vamos a pagar
+                window.location.href = data.url;
+              } else {
+                throw new Error(data.error || "Error desconocido");
+              }
+            } catch (error) {
+              console.error(error);
+              alert("Hubo un problema al iniciar el pago. Revisa la consola.");
+              btnVentiPay.disabled = false;
+              btnVentiPay.innerHTML = originalText;
+              btnVentiPay.classList.remove("opacity-70");
+            }
+          };
         }
       });
 
@@ -254,6 +256,5 @@ import "../styles/global.css";
         };
       }
     </script>
-
   </body>
 </html>
