@@ -258,31 +258,54 @@ if (accessToken && refreshToken) {
         const pageInfo = document.getElementById('pageInfo');
         const allCards = Array.from(hiddenCardsContainer.children);
 
+
         function filterProducts() {
-            const query = searchInput.value.toLowerCase();
-            const category = categoryFilter.value;
-            const material = materialFilter.value;
+            // 1. Limpiamos los valores del buscador y filtros (minúsculas y sin espacios extra)
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categoryFilter.value.toLowerCase().trim(); // <--- CLAVE
+            const material = materialFilter.value.toLowerCase().trim();
             const sort = sortFilter.value;
 
             currentFilteredCards = allCards.filter(card => {
-                const name = card.getAttribute('data-name');
-                const cat = card.getAttribute('data-category');
-                const mat = card.getAttribute('data-material');
-                return name.includes(query) && (category === "" || cat === category) && (material === "" || mat === material);
+                // 2. Obtenemos los datos de la tarjeta y los limpiamos igual
+                const name = (card.getAttribute('data-name') || "").toLowerCase();
+                const cat = (card.getAttribute('data-category') || "").toLowerCase().trim(); // <--- CLAVE
+                const mat = (card.getAttribute('data-material') || "").toLowerCase().trim();
+                
+                // 3. Comparamos
+                const matchesSearch = name.includes(query);
+                
+                // Si el filtro está vacío ("") O si las categorías limpias coinciden
+                const matchesCategory = category === "" || cat === category; 
+                
+                // Lo mismo para el material
+                const matchesMaterial = material === "" || mat === material;
+
+                return matchesSearch && matchesCategory && matchesMaterial;
             });
 
+            // 4. Ordenamiento (Esto se queda igual)
             currentFilteredCards.sort((a, b) => {
-                const priceA = Number(a.getAttribute('data-price')); const priceB = Number(b.getAttribute('data-price'));
-                const nameA = a.getAttribute('data-name'); const nameB = b.getAttribute('data-name');
-                const dateA = new Date(a.getAttribute('data-date')).getTime(); const dateB = new Date(b.getAttribute('data-date')).getTime();
+                const priceA = Number(a.getAttribute('data-price')); 
+                const priceB = Number(b.getAttribute('data-price'));
+                const nameA = a.getAttribute('data-name'); 
+                const nameB = b.getAttribute('data-name');
+                const dateA = new Date(a.getAttribute('data-date')).getTime(); 
+                const dateB = new Date(b.getAttribute('data-date')).getTime();
+                
                 if (sort === 'price-asc') return priceA - priceB;
                 if (sort === 'price-desc') return priceB - priceA;
                 if (sort === 'name-asc') return nameA.localeCompare(nameB);
                 if (sort === 'newest') return dateB - dateA;
                 return 0;
             });
-            currentPage = 1; renderPage(false); resultCount.innerText = currentFilteredCards.length;
+
+            currentPage = 1; 
+            renderPage(false); 
+            resultCount.innerText = currentFilteredCards.length;
         }
+
+        // ... (resto del código) ...
 
         function renderPage(shouldScroll = false) {
             productsGrid.innerHTML = ""; paginationControls.innerHTML = "";
