@@ -1,5 +1,6 @@
 ---
 // src/pages/login.astro
+export const prerender = false; // <--- IMPORTANTE PARA NETLIFY
 import "../styles/global.css";
 ---
 
@@ -72,7 +73,7 @@ import "../styles/global.css";
 
         <div class="flex items-center my-2">
             <div class="flex-grow border-t border-gray-200 dark:border-slate-200"></div>
-            <span class="mx-4 text-gray-400 text-xs">O</span>
+            <span class="mx-4 text-gray-400 dark:text-slate-400 text-xs">O</span>
             <div class="flex-grow border-t border-gray-200 dark:border-slate-200"></div>
         </div>
 
@@ -156,7 +157,6 @@ import "../styles/global.css";
           btnRegister.disabled = false;
         } else {
           showMessage("¡Cuenta creada! Iniciando...", false);
-          // Auto-login tras registro
           setTimeout(async () => {
              const loginEvent = new Event('submit');
              form.dispatchEvent(loginEvent);
