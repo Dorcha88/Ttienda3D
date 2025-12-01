@@ -9,18 +9,31 @@ const { title = "Prinlab3D" } = Astro.props;
 const { cookies } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
 const refreshToken = cookies.get("sb-refresh-token")?.value;
+
+// 1. DECLARAR VARIABLES PRIMERO (Para evitar ReferenceError)
 let isAdmin = false;
 let isLoggedIn = false;
 
+// 2. INTENTAR INICIAR SESIÓN
 if (accessToken && refreshToken) {
-  const { data: { session } } = await supabase.auth.setSession({
+  const { data: { session }, error } = await supabase.auth.setSession({
     access_token: accessToken,
     refresh_token: refreshToken,
   });
-  if (session) {
-    isLoggedIn = true;
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-    isAdmin = profile?.role === 'admin';
+
+  if (!error && session) {
+    isLoggedIn = true; // Marcamos que hay usuario
+    
+    // 3. VERIFICAR SI ES ADMIN
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (profile?.role === 'admin') {
+        isAdmin = true;
+    }
   }
 }
 ---
