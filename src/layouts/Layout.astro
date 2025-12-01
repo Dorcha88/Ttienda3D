@@ -35,37 +35,30 @@ if (accessToken && refreshToken) {
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
-        /* ANIMACIÓN DEL BANNER (MARQUEE) MEJORADA */
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
+        /* ANIMACIÓN DEL BANNER (MARQUEE) */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
         
         .animate-marquee {
             display: inline-block;
-            animation: marquee 15s linear infinite;
-            padding-left: 100%; /* Empieza fuera de la pantalla */
+            white-space: nowrap;
+            animation: marquee 18s linear infinite;
+            padding-left: 100%;
         }
 
-        @keyframes marquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        /* Pausar al pasar el mouse */
-        .marquee-container:hover .animate-marquee {
+        .banner-container:hover .animate-marquee {
             animation-play-state: paused;
         }
 
-        /* Estilos globales */
+        /* Estilos globales y carrito */
         #cart-items-container::-webkit-scrollbar { width: 5px; }
         #cart-items-container::-webkit-scrollbar-thumb { background: #ec4899; border-radius: 10px; }
         
         .cart-sidebar {
             position: fixed; top: 0; right: 0; height: 100%; width: 400px; max-width: 100%;
-            /* Azul Maya en fondo oscuro */
-            @apply bg-white dark:bg-[#CDFFFF] border-l border-gray-100 dark:border-cyan-200;
+            @apply bg-white dark:bg-slate-900 border-l border-gray-100 dark:border-slate-800;
             box-shadow: -5px 0 25px rgba(0,0,0,0.1);
             transform: translateX(100%); transition: transform 0.3s ease-in-out;
             z-index: 100; display: flex; flex-direction: column;
@@ -88,34 +81,31 @@ if (accessToken && refreshToken) {
     <slot name="head" />
 </head>
 
-<body class="bg-gray-50 dark:bg-[#CDFFFF] text-gray-800 dark:text-slate-900 font-sans min-h-screen antialiased pt-44 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-[#CDFFFF] text-gray-800 dark:text-slate-800 font-sans min-h-screen antialiased pt-44 transition-colors duration-300">
 
     <header class="fixed top-0 left-0 right-0 z-50 shadow-sm bg-white/95 dark:bg-[#CDFFFF]/95 backdrop-blur-md border-b border-gray-200 dark:border-cyan-200 transition-colors duration-300">
         
-        <div class="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-1.5 marquee-container shadow-inner cursor-default">
+        <div class="banner-container bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 text-white text-xs md:text-sm font-bold py-1.5 overflow-hidden relative shadow-inner cursor-default">
             <div class="animate-marquee">
-                <span class="tracking-wide inline-flex items-center gap-4">
+                <p class="tracking-wide inline-flex items-center gap-4">
                     📦 Envíos lunes y viernes por <span class="text-yellow-200">BlueExpress</span> y <span class="text-yellow-200">Correos Chile</span> 🚚
-                
-                   
-                </span>
+                </p>
             </div>
         </div>
 
-        <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-3">
-            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+        <div class="max-w-[1400px] mx-auto px-2 sm:px-4 py-3">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-3">
                 
-                <div class="w-full lg:w-auto flex justify-between items-center">
+                <div class="w-full lg:w-auto flex justify-between items-center min-w-[140px]">
                     <a href="/" class="flex items-center group transition-opacity hover:opacity-80">
-                        <img src="/logo.jpeg" alt="Logo" class="h-12 w-auto object-contain rounded-full" />
-                        <span class="ml-2 text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 hidden sm:block">Prinlab3D</span>
+                        <img src="/logo.jpeg" alt="Logo" class="h-14 w-14 object-cover rounded-full shadow-sm border border-gray-100 dark:border-cyan-200" />
+                        <span class="ml-3 text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 hidden sm:block">Prinlab3D</span>
                     </a>
 
                     <div class="flex gap-2 lg:hidden">
-                        <button id="star-btn-mobile" class="p-2 rounded-full hover:bg-yellow-100 text-yellow-500 transition active:scale-90 border border-transparent hover:border-yellow-300">
+                        <button id="star-btn-mobile" class="p-2 rounded-full hover:bg-yellow-100 text-yellow-500 transition active:scale-90">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                         </button>
-
                         <button id="theme-toggle-mobile" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-cyan-100 text-gray-500 dark:text-slate-600">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         </button>
@@ -126,22 +116,32 @@ if (accessToken && refreshToken) {
                     </div>
                 </div>
 
-                <nav class="flex items-center gap-3 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 hide-scroll">
-                    <a href="/nosotros" class="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 dark:bg-white text-slate-800 dark:text-pink-600 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                <nav class="flex items-center gap-2 md:gap-3 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0 hide-scroll justify-start lg:justify-center">
+                    
+                    <a href="/nosotros" class="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 dark:bg-white text-slate-800 dark:text-pink-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
                         <span class="text-blue-500">👥</span> Quiénes Somos
                     </a>
-                    <a href="/#destacados" class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-white text-slate-800 dark:text-blue-600 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+
+                    <a href="/#destacados" class="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-white text-slate-800 dark:text-blue-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
                         <span class="text-yellow-500">⭐</span> Destacados
                     </a>
-                    <a href="/#catalogo" class="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-white text-slate-800 dark:text-green-600 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+
+                    <a href="/#catalogo" class="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 dark:bg-white text-slate-800 dark:text-green-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
                         <span class="text-pink-500">🛍️</span> Productos
                     </a>
-                    <a href="https://www.instagram.com/prinlab3d/" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-white text-slate-800 dark:text-orange-600 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
-                        <span class="text-black">📱</span> Redes Sociales
+
+                    <a href="https://www.instagram.com/prinlab3d/" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-white text-slate-800 dark:text-orange-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-black">📱</span> Redes
                     </a>
-                    <a href="/contacto" class="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-white text-slate-800 dark:text-purple-600 font-bold text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+
+                    <a href="/contacto" class="flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-white text-slate-800 dark:text-purple-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
                         <span class="text-gray-600">📞</span> Contacto
                     </a>
+
+                    <a href="/preguntas-frecuentes" class="flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-100 dark:bg-white text-slate-800 dark:text-cyan-600 font-bold text-xs md:text-sm whitespace-nowrap hover:scale-105 transition shadow-sm">
+                        <span class="text-cyan-600">❓</span> Preguntas
+                    </a>
+
                 </nav>
 
                 <div class="hidden lg:flex gap-3 items-center border-l pl-4 border-gray-200 dark:border-cyan-300">
@@ -211,7 +211,6 @@ if (accessToken && refreshToken) {
     import { cartItems, removeProductFromCart } from "../lib/cartStore";
     import { favoriteItems } from "../lib/favoritesStore"; 
 
-    // ESTRELLAS
     let starInterval = null;
     function toggleRain() {
         if (starInterval) {
@@ -226,7 +225,6 @@ if (accessToken && refreshToken) {
     document.getElementById('star-btn')?.addEventListener('click', toggleRain);
     document.getElementById('star-btn-mobile')?.addEventListener('click', toggleRain);
 
-    // MODO OSCURO
     const themeToggleBtn = document.getElementById('theme-toggle');
     const themeToggleBtnMobile = document.getElementById('theme-toggle-mobile');
     const darkIcon = document.getElementById('theme-toggle-dark-icon');
@@ -251,21 +249,17 @@ if (accessToken && refreshToken) {
     if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
     if(themeToggleBtnMobile) themeToggleBtnMobile.addEventListener('click', toggleTheme);
 
-    // FAVORITOS
     const favBadge = document.getElementById('fav-badge');
     favoriteItems.subscribe(items => {
         const count = Object.keys(items).length;
         if(favBadge) { if (count > 0) favBadge.classList.remove('hidden'); else favBadge.classList.add('hidden'); }
     });
 
-    // CARRITO
     window.toggleCart = () => {
         const sidebar = document.getElementById('cart-sidebar');
         const overlay = document.getElementById('cart-overlay');
         if (sidebar && overlay) { sidebar.classList.toggle('cart-open'); overlay.classList.toggle('active'); }
     }
-    
-    // Función segura
     window.limpiarCarrito = function() { 
         if(confirm("¿Vaciar?")) {
             cartItems.set({}); 

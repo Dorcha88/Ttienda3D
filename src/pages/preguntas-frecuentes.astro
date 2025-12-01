@@ -1,0 +1,75 @@
+---
+// src/pages/preguntas-frecuentes.astro
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Preguntas Frecuentes | Prinlab3D">
+    
+    <main class="min-h-screen bg-gray-50 dark:bg-[#CDFFFF] py-16 px-4 transition-colors duration-300">
+        
+        <div class="max-w-4xl mx-auto text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-slate-800 dark:text-slate-900 mb-4">
+                Preguntas Frecuentes 🤔
+            </h1>
+            <p class="text-gray-600 dark:text-slate-600 text-lg">
+                Aquí resolvemos las dudas más comunes sobre nuestros productos y envíos.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto items-start">
+            
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>📄 ¿Emiten boletas y facturas?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Sí, emitimos tanto boleta como factura. Somos una PyME establecida de la Región de Ñuble.</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>🚚 ¿Hacen envíos a regiones?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Sí. Hacemos envíos <strong>por pagar a domicilio</strong> vía BlueExpress y Correos de Chile.</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>🏪 ¿Tienen tienda física?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Sí, en Chillán (Galería Pacífico, Local 6).</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>🤝 ¿Trabajan con FOSIS/Sercotec?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Sí, tenemos experiencia en compra asistida.</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>🧬 ¿Qué materiales usan?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">PLA (Rígido) y TPU (Flexible).</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>💰 ¿Proceso de compra?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Abono del 50% para particulares.</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>⏳ ¿Tiempo de fabricación?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">2 a 4 días hábiles aprox.</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>💳 ¿Medios de pago?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Efectivo, Transferencia y Tarjetas (VentiPay).</p>
+            </details>
+
+            <details class="group bg-white dark:bg-white p-6 rounded-2xl border border-gray-100 dark:border-cyan-200 shadow-sm cursor-pointer open:ring-2 open:ring-pink-100 transition-all duration-300">
+                <summary class="flex justify-between items-center font-bold text-gray-800 dark:text-slate-800 list-none"><span>🕒 ¿Horario?</span><span class="transition group-open:rotate-180"><svg fill="none" height="24" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg></span></summary>
+                <p class="text-gray-600 dark:text-slate-500 mt-3 text-sm leading-relaxed">Lun-Sáb: 10:30 a 18:00 hrs.</p>
+            </details>
+
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="/contacto" class="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition transform">
+                ¿Tienes otra duda? Escríbenos
+            </a>
+        </div>
+
+    </main>
+</Layout>

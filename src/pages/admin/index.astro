@@ -1,10 +1,9 @@
 ---
-// src/pages/admin/index.astro
 export const prerender = false;
 import "../../styles/global.css";
 import { supabase } from "../../lib/supabase";
 
-// 1. SEGURIDAD: Verificar si es Admin
+// 1. SEGURIDAD
 const { cookies, redirect } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
 const refreshToken = cookies.get("sb-refresh-token")?.value;
@@ -18,20 +17,37 @@ const { data: { session }, error } = await supabase.auth.setSession({
 
 if (!session) return redirect("/login");
 
-// Verificar rol en base de datos
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('role')
-  .eq('id', session.user.id)
-  .single();
-
+const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
 if (profile?.role !== 'admin') return redirect("/");
 
-// 2. LEER PRODUCTOS (Read)
-const { data: products } = await supabase
+// 2. OBTENER DATOS
+let products = [];
+let allCategories = [];
+
+// LISTA DE CATEGORÍAS POR DEFECTO (Para que siempre aparezcan opciones)
+const defaultCategories = [
+    "Figuras", 
+    "Hogar", 
+    "Accesorios", 
+    "Lámparas", 
+    "Posavasos", 
+    "Porta Completos", 
+    "Moldes Macetero", 
+    "Pack Ventipay"
+];
+
+const { data: productsData } = await supabase
   .from('products')
   .select('*')
   .order('created_at', { ascending: false });
+
+if (productsData) {
+  products = productsData;
+  // Extraemos las categorías que ya usan tus productos
+  const dbCategories = products.map(p => p.category).filter(c => c);
+  // Mezclamos las por defecto con las de la BD y quitamos duplicados
+  allCategories = [...new Set([...defaultCategories, ...dbCategories])].sort();
+}
 ---
 
 <html lang="es">
@@ -45,15 +61,11 @@ const { data: products } = await supabase
     
     <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-30">
       <div class="flex items-center gap-3">
-          <div class="h-10 w-10 bg-gradient-to-tr from-pink-500 to-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow">
-              ADM
-          </div>
+          <div class="h-10 w-10 bg-gradient-to-tr from-pink-500 to-blue-500 rounded-lg flex items-center justify-center font-bold text-white text-sm shadow">ADM</div>
           <h1 class="text-xl font-bold text-gray-800 tracking-tight">Panel de Control</h1>
       </div>
       <div class="flex gap-4">
-          <a href="/" class="text-sm font-bold text-gray-500 hover:text-pink-600 transition flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full hover:bg-pink-50">
-             Ver Tienda ↗
-          </a>
+          <a href="/" class="text-sm font-bold text-gray-500 hover:text-pink-600 transition flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full hover:bg-pink-50">Ver Tienda ↗</a>
       </div>
     </nav>
 
@@ -72,16 +84,11 @@ const { data: products } = await supabase
             </div>
             
             <div>
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Categoría</label>
-              <select id="new-category" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:border-pink-400 outline-none transition">
-                  <option value="Figuras">Figuras</option>
-                  <option value="Posavasos">Posavasos</option>
-                  <option value="Porta Completos">Porta Completos</option>
-                  <option value="Hogar">Hogar</option>
-                  <option value="Lámparas">Lámparas</option>
-                  <option value="Accesorios">Accesorios</option>
-                  <option value="Pack Ventipay">Pack Ventipay</option>
-              </select>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Categoría (Elige o Escribe)</label>
+              <input list="categories-list" id="new-category" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:border-pink-400 outline-none transition" placeholder="Selecciona o escribe nueva..." required />
+              <datalist id="categories-list">
+                  {allCategories.map(cat => <option value={cat} />)}
+              </datalist>
             </div>
 
             <div>
@@ -99,6 +106,11 @@ const { data: products } = await supabase
               <textarea id="new-desc" rows="3" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:border-pink-400 outline-none transition resize-none"></textarea>
             </div>
 
+            <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-xl border border-gray-100">
+                <input type="checkbox" id="new-featured" class="w-5 h-5 text-pink-500 rounded focus:ring-pink-500 border-gray-300" />
+                <label for="new-featured" class="text-sm font-bold text-gray-600 cursor-pointer select-none">⭐ Destacar en Portada</label>
+            </div>
+
             <button type="submit" id="btn-create" class="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white font-bold py-3 rounded-xl mt-2 transition shadow-md transform active:scale-95">
               Publicar Producto
             </button>
@@ -114,7 +126,12 @@ const { data: products } = await supabase
         
         <div class="space-y-4">
           {products?.map((product) => (
-            <div class="bg-white p-4 rounded-2xl flex flex-col sm:flex-row gap-5 items-center border border-gray-100 shadow-sm hover:shadow-md transition group">
+            <div class="bg-white p-4 rounded-2xl flex flex-col sm:flex-row gap-5 items-center border border-gray-100 shadow-sm hover:shadow-md transition group relative">
+              
+              {product.is_featured && (
+                  <div class="absolute top-2 right-2 text-xl" title="Producto Destacado">⭐</div>
+              )}
+
               <div class="h-24 w-24 bg-gray-50 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 relative">
                   <img src={product.image_url} alt={product.name} class="w-full h-full object-contain p-1"/>
               </div>
@@ -123,28 +140,14 @@ const { data: products } = await supabase
                 <h3 class="font-bold text-gray-800 text-lg truncate">{product.name}</h3>
                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
                     <span class="text-pink-600 font-bold bg-pink-50 px-3 py-1 rounded-full text-sm border border-pink-100">${product.price.toLocaleString('es-CL')}</span>
-                    <span class="text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded border">{product.category || 'General'}</span>
+                    <span class="text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded border">{product.category || 'Sin Cat.'}</span>
                 </div>
                 <p class="text-xs text-gray-400 mt-2 truncate max-w-xs mx-auto sm:mx-0">{product.description}</p>
               </div>
 
               <div class="flex gap-2">
-                <button 
-                    class="btn-edit text-blue-400 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition"
-                    data-product={JSON.stringify(product)}
-                    title="Editar"
-                >
-                    ✏️
-                </button>
-                
-                <button 
-                    class="btn-delete text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition"
-                    data-id={product.id}
-                    data-image={product.image_url}
-                    title="Eliminar"
-                >
-                    🗑️
-                </button>
+                <button class="btn-edit text-blue-400 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition" data-product={JSON.stringify(product)} title="Editar">✏️</button>
+                <button class="btn-delete text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition" data-id={product.id} title="Eliminar">🗑️</button>
               </div>
             </div>
           ))}
@@ -168,16 +171,11 @@ const { data: products } = await supabase
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Categoría</label>
-                    <select id="edit-category" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500">
-                        <option value="Figuras">Figuras</option>
-                        <option value="Posavasos">Posavasos</option>
-                        <option value="Porta Completos">Porta Completos</option>
-                        <option value="Hogar">Hogar</option>
-                        <option value="Lámparas">Lámparas</option>
-                        <option value="Accesorios">Accesorios</option>
-                        <option value="Pack Ventipay">Pack Ventipay</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Categoría (Escribe o Selecciona)</label>
+                    <input list="categories-list-edit" id="edit-category" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500" placeholder="Selecciona o escribe..." />
+                    <datalist id="categories-list-edit">
+                        {allCategories.map(c => <option value={c} />)}
+                    </datalist>
                 </div>
 
                 <div>
@@ -189,15 +187,18 @@ const { data: products } = await supabase
                     <label class="block text-xs font-bold text-gray-500 mb-1">Descripción</label>
                     <textarea id="edit-desc" rows="3" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500"></textarea>
                 </div>
+                
+                <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                    <input type="checkbox" id="edit-featured" class="w-5 h-5 text-blue-600 rounded" />
+                    <label for="edit-featured" class="text-sm font-bold text-gray-600 cursor-pointer select-none">⭐ Producto Destacado</label>
+                </div>
 
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">Cambiar Imagen (Opcional)</label>
                     <input type="file" id="edit-image" accept="image/*" class="text-sm"/>
                 </div>
 
-                <button type="submit" id="btn-update" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl mt-2 shadow-lg">
-                    Guardar Cambios
-                </button>
+                <button type="submit" id="btn-update" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl mt-2 shadow-lg">Guardar Cambios</button>
             </form>
         </div>
     </div>
@@ -207,16 +208,14 @@ const { data: products } = await supabase
     <script>
       import { supabase } from "../../lib/supabase";
 
-      // Recuperar sesión
       const sessionElement = document.getElementById('session-data');
       const accessToken = sessionElement?.dataset.access;
       const refreshToken = sessionElement?.dataset.refresh;
-
       if (accessToken && refreshToken) {
           await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
       }
 
-      // === LÓGICA DE CREAR (CREATE) ===
+      // === CREAR ===
       const createForm = document.getElementById('create-form');
       const btnCreate = document.getElementById('btn-create');
       const msgCreate = document.getElementById('create-msg');
@@ -224,32 +223,26 @@ const { data: products } = await supabase
       createForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         btnCreate.disabled = true; btnCreate.innerText = "Subiendo...";
-        msgCreate.innerText = "";
         
         try {
             const name = document.getElementById('new-name').value;
             const price = document.getElementById('new-price').value;
             const desc = document.getElementById('new-desc').value;
             const category = document.getElementById('new-category').value;
+            const isFeatured = document.getElementById('new-featured').checked;
             const file = document.getElementById('new-image').files[0];
 
             if (!file) throw new Error("Falta imagen");
 
-            // 1. Subir imagen
-            const fileName = `${Date.now()}-${file.name}`;
+            const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
             const { error: upErr } = await supabase.storage.from('products').upload(fileName, file);
             if (upErr) throw upErr;
 
-            // 2. Obtener URL
             const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
 
-            // 3. Insertar en BD
             const { error: dbErr } = await supabase.from('products').insert({
-                name, 
-                price: parseFloat(price), 
-                description: desc, 
-                image_url: publicUrl,
-                category // Nuevo campo
+                name, price: parseFloat(price), description: desc, image_url: publicUrl,
+                category, is_featured: isFeatured
             });
             if (dbErr) throw dbErr;
 
@@ -261,49 +254,38 @@ const { data: products } = await supabase
         }
       });
 
-      // === LÓGICA DE ELIMINAR (DELETE) ===
+      // === ELIMINAR ===
       document.querySelectorAll('.btn-delete').forEach(btn => {
           btn.addEventListener('click', async (e) => {
               if(!confirm("¿Estás seguro de eliminar este producto?")) return;
-
               const id = e.currentTarget.dataset.id;
-              // Opcional: Borrar imagen del storage si quieres ahorrar espacio
-              // const imgUrl = e.currentTarget.dataset.image; 
-
               const { error } = await supabase.from('products').delete().eq('id', id);
-              
               if(error) alert("Error al borrar: " + error.message);
               else window.location.reload();
           });
       });
 
-      // === LÓGICA DE EDITAR (UPDATE) ===
+      // === EDITAR ===
       const modal = document.getElementById('edit-modal');
       const editForm = document.getElementById('edit-form');
       const btnUpdate = document.getElementById('btn-update');
 
-      // Abrir Modal
       document.querySelectorAll('.btn-edit').forEach(btn => {
           btn.addEventListener('click', (e) => {
-              const product = JSON.parse(e.currentTarget.dataset.product);
-              
-              document.getElementById('edit-id').value = product.id;
-              document.getElementById('edit-name').value = product.name;
-              document.getElementById('edit-price').value = product.price;
-              document.getElementById('edit-desc').value = product.description;
-              document.getElementById('edit-category').value = product.category || 'Figuras';
-              document.getElementById('edit-old-image-url').value = product.image_url;
-              
+              const p = JSON.parse(e.currentTarget.dataset.product);
+              document.getElementById('edit-id').value = p.id;
+              document.getElementById('edit-name').value = p.name;
+              document.getElementById('edit-price').value = p.price;
+              document.getElementById('edit-desc').value = p.description || '';
+              document.getElementById('edit-category').value = p.category || '';
+              document.getElementById('edit-featured').checked = p.is_featured || false;
+              document.getElementById('edit-old-image-url').value = p.image_url;
               modal.classList.remove('hidden');
           });
       });
 
-      // Cerrar Modal
-      document.getElementById('close-modal').addEventListener('click', () => {
-          modal.classList.add('hidden');
-      });
+      document.getElementById('close-modal').addEventListener('click', () => modal.classList.add('hidden'));
 
-      // Guardar Cambios
       editForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           btnUpdate.disabled = true; btnUpdate.innerText = "Guardando...";
@@ -314,29 +296,23 @@ const { data: products } = await supabase
               const price = document.getElementById('edit-price').value;
               const desc = document.getElementById('edit-desc').value;
               const category = document.getElementById('edit-category').value;
+              const isFeatured = document.getElementById('edit-featured').checked;
               const file = document.getElementById('edit-image').files[0];
               let imageUrl = document.getElementById('edit-old-image-url').value;
 
-              // Si subieron nueva imagen, la reemplazamos
               if (file) {
-                  const fileName = `${Date.now()}-edit-${file.name}`;
+                  const fileName = `${Date.now()}-edit-${file.name.replace(/\s+/g, '-')}`;
                   const { error: upErr } = await supabase.storage.from('products').upload(fileName, file);
                   if (upErr) throw upErr;
                   const { data } = supabase.storage.from('products').getPublicUrl(fileName);
                   imageUrl = data.publicUrl;
               }
 
-              // Update en BD
               const { error: updateErr } = await supabase.from('products').update({
-                  name,
-                  price: parseFloat(price),
-                  description: desc,
-                  category,
-                  image_url: imageUrl
+                  name, price: parseFloat(price), description: desc, category, is_featured: isFeatured, image_url: imageUrl
               }).eq('id', id);
 
               if (updateErr) throw updateErr;
-
               window.location.reload();
 
           } catch (err) {
@@ -344,7 +320,6 @@ const { data: products } = await supabase
               btnUpdate.disabled = false; btnUpdate.innerText = "Guardar Cambios";
           }
       });
-
     </script>
   </body>
 </html>
