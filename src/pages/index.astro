@@ -3,32 +3,53 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import { supabase } from "../lib/supabase";
 
-// 1. LISTA DE CATEGORÍAS FIJAS
-const defaultCategories = [
-    "Figuras", "Hogar", "Accesorios", "Lámparas", "Posavasos", "Porta Completos", "Moldes Macetero", 
-];
-
-// 2. TRAER PRODUCTOS
+// 1. VARIABLES INICIALES
 let productsDB = [];
 let featuredProducts = [];
 let uniqueMaterials = [];
-let uniqueCategories = [];
+let uniqueCategories = []; 
 
-const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+// 2. TRAER DATOS DE SUPABASE (Pedimos Productos y Categorías al mismo tiempo)
+const [productsResult, categoriesResult] = await Promise.all([
+  supabase.from('products').select('*').order('created_at', { ascending: false }),
+  supabase.from('categories').select('name').order('name', { ascending: true })
+]);
 
-if (data) {
-  productsDB = data;
-  featuredProducts = data.filter(p => p.is_featured === true);
-  if (featuredProducts.length === 0) { featuredProducts = data.slice(0, 4); } 
-  else { featuredProducts = featuredProducts.slice(0, 4); }
+const { data: productsData, error: productsError } = productsResult;
+const { data: categoriesData, error: categoriesError } = categoriesResult;
 
-  uniqueMaterials = [...new Set(data.map(p => p.material).filter(m => m))];
-  const dbCategories = data.map(p => p.category).filter(c => c);
-  uniqueCategories = [...new Set([...defaultCategories, ...dbCategories])].sort();
+// 3. PROCESAR PRODUCTOS
+if (productsData) {
+  productsDB = productsData;
+
+  // Lógica de destacados (Muestra los marcados como featured o los 4 últimos)
+  featuredProducts = productsData.filter(p => p.is_featured === true);
+  if (featuredProducts.length === 0) { 
+    featuredProducts = productsData.slice(0, 4); 
+  } else { 
+    featuredProducts = featuredProducts.slice(0, 4); 
+  }
+
+  // Materiales únicos (sacados de los productos reales)
+  uniqueMaterials = [...new Set(productsData.map(p => p.material).filter(m => m))];
 }
 
-if (error) { console.error("Error cargando productos:", error.message); }
+// 4. PROCESAR CATEGORÍAS (LÓGICA LIMPIA)
+// Opción A: Usamos la Tabla Maestra 'categories' (Lo ideal)
+if (categoriesData && categoriesData.length > 0) {
+    uniqueCategories = categoriesData.map(c => c.name);
+} 
+// Opción B (Respaldo): Si la tabla falla o está vacía, leemos de los productos existentes
+else {
+    const productCats = productsData ? productsData.map(p => p.category).filter(c => c) : [];
+    uniqueCategories = [...new Set(productCats)].sort();
+}
 
+// Manejo de errores en consola del servidor (para que tú sepas si algo falla)
+if (productsError) console.error("Error cargando productos:", productsError.message);
+if (categoriesError) console.error("Error cargando categorías:", categoriesError.message);
+
+// 5. AUTENTICACIÓN (Para saber si es Admin)
 const { cookies } = Astro;
 const accessToken = cookies.get("sb-access-token")?.value;
 const refreshToken = cookies.get("sb-refresh-token")?.value;
