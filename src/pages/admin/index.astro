@@ -20,33 +20,24 @@ if (!session) return redirect("/login");
 const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
 if (profile?.role !== 'admin') return redirect("/");
 
-// 2. OBTENER DATOS
+// 2. OBTENER DATOS (Productos y Categorías Oficiales)
 let products = [];
-let allCategories = [];
+let officialCategories = [];
 
-// LISTA DE CATEGORÍAS POR DEFECTO (Para que siempre aparezcan opciones)
-const defaultCategories = [
-    "Figuras", 
-    "Hogar", 
-    "Accesorios", 
-    "Lámparas", 
-    "Posavasos", 
-    "Porta Completos", 
-    "Moldes Macetero", 
-    "Pack Ventipay"
-];
+// Hacemos las dos peticiones a la vez
+const [productsRes, categoriesRes] = await Promise.all([
+    supabase.from('products').select('*').order('created_at', { ascending: false }),
+    supabase.from('categories').select('name').order('name', { ascending: true })
+]);
 
-const { data: productsData } = await supabase
-  .from('products')
-  .select('*')
-  .order('created_at', { ascending: false });
+// Procesar Productos
+if (productsRes.data) {
+    products = productsRes.data;
+}
 
-if (productsData) {
-  products = productsData;
-  // Extraemos las categorías que ya usan tus productos
-  const dbCategories = products.map(p => p.category).filter(c => c);
-  // Mezclamos las por defecto con las de la BD y quitamos duplicados
-  allCategories = [...new Set([...defaultCategories, ...dbCategories])].sort();
+// Procesar Categorías (Ahora usamos la tabla oficial)
+if (categoriesRes.data) {
+    officialCategories = categoriesRes.data.map(c => c.name);
 }
 ---
 
@@ -84,11 +75,11 @@ if (productsData) {
             </div>
             
             <div>
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Categoría (Elige o Escribe)</label>
-              <input list="categories-list" id="new-category" class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:border-pink-400 outline-none transition" placeholder="Selecciona o escribe nueva..." required />
-              <datalist id="categories-list">
-                  {allCategories.map(cat => <option value={cat} />)}
-              </datalist>
+              <label class="block text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Categoría</label>
+              <select id="new-category" required class="w-full bg-gray-50 border-2 border-gray-200 rounded-xl p-3 text-gray-800 focus:border-pink-400 outline-none transition cursor-pointer">
+                  <option value="" disabled selected>Selecciona una opción...</option>
+                  {officialCategories.map(cat => <option value={cat}>{cat}</option>)}
+              </select>
             </div>
 
             <div>
@@ -171,11 +162,11 @@ if (productsData) {
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 mb-1">Categoría (Escribe o Selecciona)</label>
-                    <input list="categories-list-edit" id="edit-category" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500" placeholder="Selecciona o escribe..." />
-                    <datalist id="categories-list-edit">
-                        {allCategories.map(c => <option value={c} />)}
-                    </datalist>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">Categoría</label>
+                    <select id="edit-category" class="w-full border rounded-lg p-2 outline-none focus:border-blue-500 cursor-pointer">
+                        <option value="" disabled>Selecciona...</option>
+                        {officialCategories.map(c => <option value={c}>{c}</option>)}
+                    </select>
                 </div>
 
                 <div>
@@ -277,7 +268,10 @@ if (productsData) {
               document.getElementById('edit-name').value = p.name;
               document.getElementById('edit-price').value = p.price;
               document.getElementById('edit-desc').value = p.description || '';
+              
+              // Aquí el select buscará automáticamente la opción que coincida con p.category
               document.getElementById('edit-category').value = p.category || '';
+              
               document.getElementById('edit-featured').checked = p.is_featured || false;
               document.getElementById('edit-old-image-url').value = p.image_url;
               modal.classList.remove('hidden');
